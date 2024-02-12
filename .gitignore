@@ -1,0 +1,5 @@
+/vendor/
+/.idea/
+/.phpunit.cache/
+/bin/
+/php-golden.iml
