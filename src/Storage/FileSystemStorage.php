@@ -10,6 +10,7 @@ final class FileSystemStorage implements Storage
 
     public function keep(string $name, string $subject): void
     {
+        $this->ensureFolder($name);
         file_put_contents($name, $subject);
     }
 
@@ -24,5 +25,13 @@ final class FileSystemStorage implements Storage
             throw SnapshotNotFound::withName($name);
         }
         return file_get_contents($name);
+    }
+
+    private function ensureFolder(string $name): void
+    {
+        $folder = dirname($name);
+        if (!file_exists($folder)) {
+            mkdir($folder, 0775, true);
+        }
     }
 }
