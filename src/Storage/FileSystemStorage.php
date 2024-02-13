@@ -5,23 +5,17 @@ declare (strict_types=1);
 namespace Golden\Storage;
 
 
-final class MemoryStorage implements Storage
+final class FileSystemStorage implements Storage
 {
-    private array $data;
-
-    public function __construct()
-    {
-        $this->data = [];
-    }
 
     public function keep(string $name, string $subject): void
     {
-        $this->data[$name] = $subject;
+        file_put_contents($name, $subject);
     }
 
     public function exists(string $name): bool
     {
-        return isset($this->data[$name]);
+        return file_exists($name);
     }
 
     public function retrieve(string $name): string
@@ -29,6 +23,6 @@ final class MemoryStorage implements Storage
         if (!$this->exists($name)) {
             throw SnapshotNotFound::withName($name);
         }
-        return $this->data[$name];
+        return file_get_contents($name);
     }
 }

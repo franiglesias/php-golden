@@ -9,6 +9,8 @@ use Golden\Storage\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use Tests\Golden\Helpers\ExampleTest;
+use Tests\Golden\Helpers\SnapshotAssertions;
 
 final class VerifyTest extends TestCase
 {
