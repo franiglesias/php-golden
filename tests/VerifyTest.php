@@ -4,113 +4,77 @@ declare (strict_types=1);
 
 namespace Tests\Golden;
 
-use Golden\Golden;
 use Golden\Storage\MemoryStorage;
 use Golden\Storage\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
-
 final class VerifyTest extends TestCase
 {
+    use SnapshotAssertions;
+    const EXPECTED_SNAPSHOT_PATH = "__snapshots/ExampleTest/example_test.snap";
     protected Storage $storage;
+    private ExampleTest $testCase;
 
     protected function setUp(): void
     {
         $this->storage = new MemoryStorage();
+        $this->testCase = new ExampleTest("ExampleTest");
+        $this->testCase->registerStorage($this->storage);
     }
 
     #[Test]
-        /** @test */
+    /** @test */
     public function shouldPass(): void
     {
-        $testCase = new class("Example test") extends TestCase {
-            use Golden;
-        };
-        $testCase->registerStorage($this->storage);
-
-        $testCase->verify("This is the subject");
-        $this->assertTrue($this->storage->exists("Example test"));
+        $this->testCase->verify("This is the subject");
+        $this->assertSnapshotWasCreated(self::EXPECTED_SNAPSHOT_PATH);
     }
 
     #[Test]
     /** @test */
     public function shouldNotPass(): void
     {
-        $testCase = new class("Example test") extends TestCase {
-            use Golden;
-        };
-        $testCase->registerStorage($this->storage);
-
-        $testCase->verify("This is the subject");
+        $this->testCase->verify("This is the subject");
 
         $this->expectException(ExpectationFailedException::class);
-        $testCase->Verify("This is another output");
+        $this->testCase->Verify("This is another output");
     }
 
     #[Test]
     /** @test */
     public function shouldNormalizeSubjectToString(): void
     {
-        $testCase = new class("Example test") extends TestCase {
-            use Golden;
-        };
-        $testCase->registerStorage($this->storage);
+        $this->testCase->verify("This is the subject");
 
-        $testCase->verify("This is the subject");
-
-        $snapshot = $this->storage->retrieve("Example test");
-
-        self::assertEquals("This is the subject", $snapshot);
+        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "This is the subject");
     }
 
     #[Test]
     /** @test */
     public function shouldNormalizeIntegerSubjectToString(): void
     {
-        $testCase = new class("Example test") extends TestCase {
-            use Golden;
-        };
-        $testCase->registerStorage($this->storage);
+        $this->testCase->verify(12345);
 
-        $testCase->verify(12345);
-
-        $snapshot = $this->storage->retrieve("Example test");
-
-        self::assertEquals("12345", $snapshot);
+        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "12345");
     }
 
     #[Test]
     /** @test */
     public function shouldNormalizeFloatSubjectToString(): void
     {
-        $testCase = new class("Example test") extends TestCase {
-            use Golden;
-        };
-        $testCase->registerStorage($this->storage);
+        $this->testCase->verify(12345.678);
 
-        $testCase->verify(12345.678);
-
-        $snapshot = $this->storage->retrieve("Example test");
-
-        self::assertEquals("12345.678", $snapshot);
+        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "12345.678");
     }
 
     #[Test]
     /** @test */
     public function shouldNormalizeArraySubjectToString(): void
     {
-        $testCase = new class("Example test") extends TestCase {
-            use Golden;
-        };
-        $testCase->registerStorage($this->storage);
+        $this->testCase->verify(["Item 1", "Item 2", "Item 3"]);
 
-        $testCase->verify(["Item 1", "Item 2", "Item 3"]);
-
-        $snapshot = $this->storage->retrieve("Example test");
-
-        self::assertEquals('["Item 1","Item 2","Item 3"]', $snapshot);
+        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, '["Item 1","Item 2","Item 3"]');
     }
-
 }
