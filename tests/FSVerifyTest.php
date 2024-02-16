@@ -15,20 +15,22 @@ final class FSVerifyTest extends TestCase
 {
     use SnapshotAssertions;
 
-    const EXPECTED_SNAPSHOT_PATH = "__snapshots/ExampleTest/example_test.snap";
+    const EXPECTED_SNAPSHOT_PATH = "tests/Helpers/__snapshots/ExampleTest/example_test.snap";
     protected Storage $storage;
     private ExampleTest $testCase;
+    private string $expectedPath;
 
     protected function setUp(): void
     {
         $this->storage = new FileSystemStorage();
         $this->testCase = new ExampleTest("ExampleTest");
         $this->testCase->registerStorage($this->storage);
+        $this->expectedPath = getcwd() . DIRECTORY_SEPARATOR . self::EXPECTED_SNAPSHOT_PATH;
     }
 
     protected function tearDown(): void
     {
-        unlink(self::EXPECTED_SNAPSHOT_PATH);
+        unlink($this->expectedPath);
     }
 
     #[Test]
@@ -36,7 +38,7 @@ final class FSVerifyTest extends TestCase
     public function shouldPass(): void
     {
         $this->testCase->verify("This is the subject");
-        $this->assertSnapshotWasCreated(self::EXPECTED_SNAPSHOT_PATH);
+        $this->assertSnapshotWasCreated($this->expectedPath);
     }
 
     #[Test]
@@ -55,7 +57,7 @@ final class FSVerifyTest extends TestCase
     {
         $this->testCase->verify("This is the subject");
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "This is the subject");
+        $this->assertSnapshotContains($this->expectedPath, "This is the subject");
     }
 
     #[Test]
@@ -64,7 +66,7 @@ final class FSVerifyTest extends TestCase
     {
         $this->testCase->verify(12345);
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "12345");
+        $this->assertSnapshotContains($this->expectedPath, "12345");
     }
 
     #[Test]
@@ -73,7 +75,7 @@ final class FSVerifyTest extends TestCase
     {
         $this->testCase->verify(12345.678);
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "12345.678");
+        $this->assertSnapshotContains($this->expectedPath, "12345.678");
     }
 
     #[Test]
@@ -82,6 +84,6 @@ final class FSVerifyTest extends TestCase
     {
         $this->testCase->verify(["Item 1", "Item 2", "Item 3"]);
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, '["Item 1","Item 2","Item 3"]');
+        $this->assertSnapshotContains($this->expectedPath, '["Item 1","Item 2","Item 3"]');
     }
 }

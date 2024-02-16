@@ -15,7 +15,9 @@ use Tests\Golden\Helpers\SnapshotAssertions;
 final class VerifyTest extends TestCase
 {
     use SnapshotAssertions;
-    const EXPECTED_SNAPSHOT_PATH = "__snapshots/ExampleTest/example_test.snap";
+
+    const EXPECTED_SNAPSHOT_PATH = "tests/Helpers/__snapshots/ExampleTest/example_test.snap";
+
     protected Storage $storage;
     private ExampleTest $testCase;
 

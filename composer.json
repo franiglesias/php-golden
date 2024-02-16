@@ -16,7 +16,7 @@
       "Golden\\": "src"
     },
     "files": [
-      "src/Golden.php"
+      "src/Config.php"
     ]
   },
   "config": {

@@ -4,10 +4,11 @@ declare (strict_types=1);
 
 namespace Golden;
 
-use Golden\Nomenclature\DefaultNomenclature;
-use Golden\Nomenclature\Nomenclature;
+use Golden\Config\Namer;
+use Golden\Config\PSR4Namer;
 use Golden\Normalizer\JsonNormalizer;
-use Golden\Storage\MemoryStorage;
+use Golden\Normalizer\Normalizer;
+use Golden\Storage\FileSystemStorage;
 use Golden\Storage\Storage;
 use PHPUnit\Framework\TestCase;
 
@@ -15,17 +16,19 @@ use PHPUnit\Framework\TestCase;
 trait Golden
 {
     private Storage $storage;
-    private JsonNormalizer $jsonNormalizer;
-    private Nomenclature $nomenclature;
+    private Normalizer $normalizer;
+    private Config $config;
+    private Namer $namer;
 
 
     private function init(): void
     {
         if (!isset($this->storage)) {
-            $this->registerStorage(new MemoryStorage());
+            $this->registerStorage(new FileSystemStorage());
         }
-        $this->jsonNormalizer = new JsonNormalizer();
-        $this->nomenclature = new DefaultNomenclature();
+        $this->normalizer = new JsonNormalizer();
+        $this->config = new Config();
+        $this->namer = new PSR4Namer();
     }
 
     public function registerStorage(Storage $storage): void
@@ -33,13 +36,19 @@ trait Golden
         $this->storage = $storage;
     }
 
-    public function verify($subject): void
+    public function verify($subject, callable ...$options): void
     {
         $this->init();
 
+        $config = $this->config;
+
+        foreach ($options as $option) {
+            $option($config);
+        }
+
         $normalized = $this->normalize($subject);
 
-        $name = $this->snapshotName();
+        $name = $config->name($this, $this->namer);
 
         if (!$this->storage->exists($name)) {
             $this->storage->keep($name, $normalized);
@@ -58,12 +67,6 @@ trait Golden
 
     public function json_normalize($subject): string
     {
-        return $this->jsonNormalizer->normalize($subject);
-    }
-
-    public function snapshotName(): string
-    {
-        /* @var $this TestCase|Golden */
-        return $this->nomenclature->name($this);
+        return $this->normalizer->normalize($subject);
     }
 }
