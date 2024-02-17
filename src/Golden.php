@@ -67,12 +67,12 @@ trait Golden
         return $this->normalizer->normalize($subject);
     }
 
-    public function report(string $previous, string $normalized): string
+    private function report(string $previous, string $normalized): string
     {
         return $this->reporter->report($previous, $normalized);
     }
 
-    public function approvalFlow(string $name, string $normalized): void
+    private function approvalFlow(string $name, string $normalized): void
     {
         $previous = "";
         if ($this->storage->exists($name)) {
@@ -86,7 +86,7 @@ trait Golden
         self::fail($diff);
     }
 
-    public function verifyFlow(string $name, string $normalized): void
+    private function verifyFlow(string $name, string $normalized): void
     {
         // Show here verify mode message
         if (!$this->storage->exists($name)) {
