@@ -8,42 +8,22 @@ namespace Golden\Config;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-final class PSR4Namer implements Namer
+final class StandardNamer implements Namer
 {
-
-    private ComposerConfig $composerConfig;
 
     public function __construct()
     {
-        $this->composerConfig = new ComposerConfig();
     }
 
     public function name(TestCase $test, string $prefix): string
     {
-        $namespaceName = (new ReflectionClass($test))->getNamespaceName();
+        $fileName = (new ReflectionClass($test))->getFileName();
         $testCaseName = (new ReflectionClass($test))->getShortName();
 
         $name = $this->testName($test);
         $testName = $this->camelCaseToSnakeCase($name);
 
-        return $this->createPath($this->namespaceParts($namespaceName), $prefix, $testCaseName, $testName);
-    }
-
-    private function namespaceParts(string $namespaceName): array
-    {
-        [$root, $base] = $this->psr4TestConfig();
-
-        $parts = explode('\\', str_replace($root, "", $namespaceName));
-        array_unshift($parts, $base);
-        return $parts;
-    }
-
-    private function psr4TestConfig(): array
-    {
-        $psr4 = $this->composerConfig->key("autoload-dev.psr-4");
-        $root = key($psr4);
-        $base = $psr4[$root];
-        return [$root, $base];
+        return $this->createPath(dirname($fileName), $prefix, $testCaseName, $testName);
     }
 
     private function camelCaseToSnakeCase($input): string

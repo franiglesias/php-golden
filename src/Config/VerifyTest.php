@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Tests\Golden;
+namespace Golden\Config;
 
 use Golden\Storage\MemoryStorage;
 use Golden\Storage\Storage;
@@ -20,12 +20,14 @@ final class VerifyTest extends TestCase
 
     protected Storage $storage;
     private ExampleTest $testCase;
+    private string $expectedPath;
 
     protected function setUp(): void
     {
         $this->storage = new MemoryStorage();
         $this->testCase = new ExampleTest("ExampleTest");
         $this->testCase->registerStorage($this->storage);
+        $this->expectedPath = getcwd() . DIRECTORY_SEPARATOR . self::EXPECTED_SNAPSHOT_PATH;
     }
 
     #[Test]
@@ -33,7 +35,7 @@ final class VerifyTest extends TestCase
     public function shouldPass(): void
     {
         $this->testCase->verify("This is the subject");
-        $this->assertSnapshotWasCreated(self::EXPECTED_SNAPSHOT_PATH);
+        $this->assertSnapshotWasCreated($this->expectedPath);
     }
 
     #[Test]
@@ -52,7 +54,7 @@ final class VerifyTest extends TestCase
     {
         $this->testCase->verify("This is the subject");
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "This is the subject");
+        $this->assertSnapshotContains($this->expectedPath, "This is the subject");
     }
 
     #[Test]
@@ -61,7 +63,7 @@ final class VerifyTest extends TestCase
     {
         $this->testCase->verify(12345);
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "12345");
+        $this->assertSnapshotContains($this->expectedPath, "12345");
     }
 
     #[Test]
@@ -70,7 +72,7 @@ final class VerifyTest extends TestCase
     {
         $this->testCase->verify(12345.678);
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, "12345.678");
+        $this->assertSnapshotContains($this->expectedPath, "12345.678");
     }
 
     #[Test]
@@ -86,6 +88,6 @@ final class VerifyTest extends TestCase
     "Item 3"
 ]
 EOD;
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, $expected);
+        $this->assertSnapshotContains($this->expectedPath, $expected);
     }
 }

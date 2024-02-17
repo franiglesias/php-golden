@@ -16,4 +16,9 @@ trait SnapshotAssertions
     {
         $this->assertTrue($this->storage->exists($name));
     }
+
+    public function absolutePath(string $name): string
+    {
+        return getcwd() . DIRECTORY_SEPARATOR . $name;
+    }
 }

@@ -5,7 +5,7 @@ declare (strict_types=1);
 namespace Golden;
 
 use Golden\Config\Namer;
-use Golden\Config\PSR4Namer;
+use Golden\Config\StandardNamer;
 use Golden\Normalizer\JsonNormalizer;
 use Golden\Normalizer\Normalizer;
 use Golden\Reporter\PhpUnitReporter;
@@ -31,7 +31,7 @@ trait Golden
         }
         $this->normalizer = new JsonNormalizer();
         $this->config = new Config();
-        $this->namer = new PSR4Namer();
+        $this->namer = new StandardNamer();
         $this->reporter = new PhpUnitReporter();
     }
 
