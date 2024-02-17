@@ -2,17 +2,16 @@
 
 declare (strict_types=1);
 
-namespace Tests\Golden;
+namespace Golden\Storage;
 
-use FranIglesias\Golden\Storage\MemoryStorage;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\FranIglesias\Golden\Helpers\ExampleTest;
-use Tests\FranIglesias\Golden\Helpers\SnapshotAssertions;
-use function FranIglesias\Golden\extension;
-use function FranIglesias\Golden\folder;
-use function FranIglesias\Golden\waitApproval;
+use Tests\Golden\Helpers\ExampleTest;
+use Tests\Golden\Helpers\SnapshotAssertions;
+use function Golden\extension;
+use function Golden\folder;
+use function Golden\waitApproval;
 
 final class OptionsTest extends TestCase
 {

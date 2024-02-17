@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace FranIglesias\Golden\Config;
+namespace Golden\Config;
 
 
 use PHPUnit\Framework\TestCase;
@@ -37,7 +37,7 @@ final class PSR4Namer implements Namer
         return $parts;
     }
 
-    public function psr4TestConfig(): array
+    private function psr4TestConfig(): array
     {
         $psr4 = $this->composerConfig->key("autoload-dev.psr-4");
         $root = key($psr4);
@@ -50,7 +50,7 @@ final class PSR4Namer implements Namer
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
     }
 
-    private function createPath(string|array ...$parts): string
+    private function createPath(...$parts): string
     {
         $flattened = [];
 

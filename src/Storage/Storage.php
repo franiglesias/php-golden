@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace FranIglesias\Golden\Storage;
+namespace Golden\Storage;
 
 interface Storage
 {

@@ -2,13 +2,13 @@
 
 declare (strict_types=1);
 
-namespace FranIglesias\Golden\Config;
+namespace Golden\Config;
 
 
 final class ComposerConfig
 {
 
-    public function key(string $key): mixed
+    public function key(string $key)
     {
         $composerJson = file_get_contents('composer.json');
         $composerData = json_decode($composerJson, true);

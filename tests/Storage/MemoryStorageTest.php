@@ -2,14 +2,14 @@
 
 declare (strict_types=1);
 
-namespace Tests\FranIglesias\Golden\Storage;
+namespace Tests\Golden\Storage;
 
-use FranIglesias\Golden\Storage\MemoryStorage;
-use FranIglesias\Golden\Storage\SnapshotNotFound;
-use FranIglesias\Golden\Storage\Storage;
+use Golden\Storage\MemoryStorage;
+use Golden\Storage\SnapshotNotFound;
+use Golden\Storage\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Tests\FranIglesias\Golden\Helpers\SnapshotAssertions;
+use Tests\Golden\Helpers\SnapshotAssertions;
 
 final class MemoryStorageTest extends TestCase
 {

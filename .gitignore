@@ -3,3 +3,4 @@
 /.phpunit.cache/
 /bin/
 /php-golden.iml
+/composer.lock

@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace FranIglesias\Golden\Reporter;
+namespace Golden\Reporter;
 
 interface Reporter
 {

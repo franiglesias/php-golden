@@ -2,10 +2,10 @@
 
 declare (strict_types=1);
 
-namespace Tests\FranIglesias\Golden\Config;
+namespace Tests\Golden\Config;
 
-use FranIglesias\Golden\Config;
-use FranIglesias\Golden\Config\PSR4Namer;
+use Golden\Config;
+use Golden\Config\PSR4Namer;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

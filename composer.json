@@ -1,7 +1,7 @@
 {
   "name": "franiglesias/golden",
-  "description": "A library for snapshot testing inPHP.",
   "type": "library",
+  "description": "A library for snapshot testing in PHP.",
   "license": "MIT",
   "authors": [
     {
@@ -15,7 +15,7 @@
   "prefer-stable": true,
   "autoload": {
     "psr-4": {
-      "FranIglesias\\Golden\\": "src"
+      "Golden\\": "src"
     },
     "files": [
       "src/Options.php"
@@ -25,16 +25,16 @@
     "bin-dir": "bin"
   },
   "require": {
-    "php": "7.4.* || >=8.0",
+    "php": "^7.4 || ^8.0",
     "ext-json": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "11.*",
+    "phpunit/phpunit": "^9.0 || ^10.0 || ^11.0",
     "mikey179/vfsstream": "^1.6"
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\FranIglesias\\Golden\\": "tests"
+      "Tests\\Golden\\": "tests"
     }
   }
 }
