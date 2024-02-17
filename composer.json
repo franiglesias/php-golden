@@ -16,14 +16,15 @@
       "Golden\\": "src"
     },
     "files": [
-      "src/Config.php"
+      "src/Options.php"
     ]
   },
   "config": {
     "bin-dir": "bin"
   },
   "require": {
-    "php": ">=8.0"
+    "php": "7.4.* || >=8.0",
+    "ext-json": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "11.*",

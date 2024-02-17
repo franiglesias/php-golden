@@ -84,6 +84,13 @@ final class FSVerifyTest extends TestCase
     {
         $this->testCase->verify(["Item 1", "Item 2", "Item 3"]);
 
-        $this->assertSnapshotContains($this->expectedPath, '["Item 1","Item 2","Item 3"]');
+        $expected = <<<'EOD'
+[
+    "Item 1",
+    "Item 2",
+    "Item 3"
+]
+EOD;
+        $this->assertSnapshotContains($this->expectedPath, $expected);
     }
 }

@@ -79,6 +79,13 @@ final class VerifyTest extends TestCase
     {
         $this->testCase->verify(["Item 1", "Item 2", "Item 3"]);
 
-        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, '["Item 1","Item 2","Item 3"]');
+        $expected = <<<'EOD'
+[
+    "Item 1",
+    "Item 2",
+    "Item 3"
+]
+EOD;
+        $this->assertSnapshotContains(self::EXPECTED_SNAPSHOT_PATH, $expected);
     }
 }

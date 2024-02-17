@@ -10,7 +10,7 @@ final class JsonNormalizer implements Normalizer
 
     public function normalize($subject): string
     {
-        $normalized = json_encode($subject);
+        $normalized = json_encode($subject, JSON_PRETTY_PRINT);
         return trim($normalized, '" ' . "\r");
     }
 }

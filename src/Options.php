@@ -2,8 +2,9 @@
 
 declare (strict_types=1);
 
+namespace Golden;
 
-use Golden\Config;
+use Closure;
 
 function extension(string $extension): Closure
 {

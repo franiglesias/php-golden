@@ -8,6 +8,8 @@ use Golden\Config\Namer;
 use Golden\Config\PSR4Namer;
 use Golden\Normalizer\JsonNormalizer;
 use Golden\Normalizer\Normalizer;
+use Golden\Reporter\PhpUnitReporter;
+use Golden\Reporter\Reporter;
 use Golden\Storage\FileSystemStorage;
 use Golden\Storage\Storage;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +21,7 @@ trait Golden
     private Normalizer $normalizer;
     private Config $config;
     private Namer $namer;
+    private Reporter $reporter;
 
 
     private function init(): void
@@ -29,6 +32,7 @@ trait Golden
         $this->normalizer = new JsonNormalizer();
         $this->config = new Config();
         $this->namer = new PSR4Namer();
+        $this->reporter = new PhpUnitReporter();
     }
 
     public function registerStorage(Storage $storage): void
@@ -50,6 +54,41 @@ trait Golden
 
         $name = $config->name($this, $this->namer);
 
+        if ($config->approvalMode()) {
+            $this->approvalFlow($name, $normalized);
+        } else {
+            $this->verifyFlow($name, $normalized);
+        }
+    }
+
+    private function normalize($subject): string
+    {
+        // Scrubs should be applied here, after normalization
+        return $this->normalizer->normalize($subject);
+    }
+
+    public function report(string $previous, string $normalized): string
+    {
+        return $this->reporter->report($previous, $normalized);
+    }
+
+    public function approvalFlow(string $name, string $normalized): void
+    {
+        $previous = "";
+        if ($this->storage->exists($name)) {
+            $previous = $this->storage->retrieve($name);
+        }
+
+        $this->storage->keep($name, $normalized);
+        // Show here approval mode message
+        /* @var $this TestCase|Golden */
+        $diff = $this->report($previous, $normalized);
+        self::fail($diff);
+    }
+
+    public function verifyFlow(string $name, string $normalized): void
+    {
+        // Show here verify mode message
         if (!$this->storage->exists($name)) {
             $this->storage->keep($name, $normalized);
         }
@@ -58,15 +97,5 @@ trait Golden
 
         /* @var $this TestCase|Golden */
         $this->assertEquals($snapshot, $normalized);
-    }
-
-    private function normalize($subject): string
-    {
-        return $this->json_normalize($subject);
-    }
-
-    public function json_normalize($subject): string
-    {
-        return $this->normalizer->normalize($subject);
     }
 }
