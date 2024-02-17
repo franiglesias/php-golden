@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Golden\Storage;
+namespace FranIglesias\Golden\Storage;
 
 
 final class MemoryStorage implements Storage

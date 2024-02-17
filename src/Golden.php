@@ -2,16 +2,16 @@
 
 declare (strict_types=1);
 
-namespace Golden;
+namespace FranIglesias\Golden;
 
-use Golden\Config\Namer;
-use Golden\Config\PSR4Namer;
-use Golden\Normalizer\JsonNormalizer;
-use Golden\Normalizer\Normalizer;
-use Golden\Reporter\PhpUnitReporter;
-use Golden\Reporter\Reporter;
-use Golden\Storage\FileSystemStorage;
-use Golden\Storage\Storage;
+use FranIglesias\Golden\Config\Namer;
+use FranIglesias\Golden\Config\PSR4Namer;
+use FranIglesias\Golden\Normalizer\JsonNormalizer;
+use FranIglesias\Golden\Normalizer\Normalizer;
+use FranIglesias\Golden\Reporter\PhpUnitReporter;
+use FranIglesias\Golden\Reporter\Reporter;
+use FranIglesias\Golden\Storage\FileSystemStorage;
+use FranIglesias\Golden\Storage\Storage;
 use PHPUnit\Framework\TestCase;
 
 

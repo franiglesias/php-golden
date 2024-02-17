@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Golden\Normalizer;
+namespace FranIglesias\Golden\Normalizer;
 
 
 final class JsonNormalizer implements Normalizer

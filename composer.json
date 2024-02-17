@@ -1,6 +1,8 @@
 {
   "name": "franiglesias/golden",
   "description": "A library for snapshot testing inPHP.",
+  "type": "library",
+  "license": "MIT",
   "authors": [
     {
       "name": "Fran Iglesias",
@@ -13,7 +15,7 @@
   "prefer-stable": true,
   "autoload": {
     "psr-4": {
-      "Golden\\": "src"
+      "FranIglesias\\Golden\\": "src"
     },
     "files": [
       "src/Options.php"
@@ -32,7 +34,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\Golden\\": "tests"
+      "Tests\\FranIglesias\\Golden\\": "tests"
     }
   }
 }

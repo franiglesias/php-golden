@@ -2,9 +2,9 @@
 
 declare (strict_types=1);
 
-namespace Tests\Golden\Helpers;
+namespace Tests\FranIglesias\Golden\Helpers;
 
-use Golden\Golden;
+use FranIglesias\Golden\Golden;
 use PHPUnit\Framework\TestCase;
 
 class ExampleTest extends TestCase

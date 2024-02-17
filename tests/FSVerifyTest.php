@@ -3,13 +3,13 @@
 declare (strict_types=1);
 
 
-use Golden\Storage\FileSystemStorage;
-use Golden\Storage\Storage;
+use FranIglesias\Golden\Storage\FileSystemStorage;
+use FranIglesias\Golden\Storage\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
-use Tests\Golden\Helpers\ExampleTest;
-use Tests\Golden\Helpers\SnapshotAssertions;
+use Tests\FranIglesias\Golden\Helpers\ExampleTest;
+use Tests\FranIglesias\Golden\Helpers\SnapshotAssertions;
 
 final class FSVerifyTest extends TestCase
 {

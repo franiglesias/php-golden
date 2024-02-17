@@ -2,15 +2,15 @@
 
 declare (strict_types=1);
 
-namespace Tests\Golden;
+namespace Tests\FranIglesias\Golden;
 
-use Golden\Storage\MemoryStorage;
-use Golden\Storage\Storage;
+use FranIglesias\Golden\Storage\MemoryStorage;
+use FranIglesias\Golden\Storage\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
-use Tests\Golden\Helpers\ExampleTest;
-use Tests\Golden\Helpers\SnapshotAssertions;
+use Tests\FranIglesias\Golden\Helpers\ExampleTest;
+use Tests\FranIglesias\Golden\Helpers\SnapshotAssertions;
 
 final class VerifyTest extends TestCase
 {

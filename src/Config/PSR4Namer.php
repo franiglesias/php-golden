@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Golden\Config;
+namespace FranIglesias\Golden\Config;
 
 
 use PHPUnit\Framework\TestCase;

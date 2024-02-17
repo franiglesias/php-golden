@@ -2,10 +2,10 @@
 
 declare (strict_types=1);
 
-namespace Golden;
+namespace FranIglesias\Golden;
 
 
-use Golden\Config\Namer;
+use FranIglesias\Golden\Config\Namer;
 use PHPUnit\Framework\TestCase;
 
 final class Config

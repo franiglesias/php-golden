@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Golden;
+namespace FranIglesias\Golden;
 
 use Closure;
 

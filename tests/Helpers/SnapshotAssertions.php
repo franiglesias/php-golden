@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Tests\Golden\Helpers;
+namespace Tests\FranIglesias\Golden\Helpers;
 
 trait SnapshotAssertions
 {
