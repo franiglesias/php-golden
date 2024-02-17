@@ -23,7 +23,8 @@ final class PSR4Namer implements Namer
         $namespaceName = (new ReflectionClass($test))->getNamespaceName();
         $testCaseName = (new ReflectionClass($test))->getShortName();
 
-        $testName = $this->camelCaseToSnakeCase($test->name());
+        $name = $this->testName($test);
+        $testName = $this->camelCaseToSnakeCase($name);
 
         return $this->createPath($this->namespaceParts($namespaceName), $prefix, $testCaseName, $testName);
     }
@@ -59,5 +60,14 @@ final class PSR4Namer implements Namer
         });
 
         return join(DIRECTORY_SEPARATOR, $flattened);
+    }
+
+    public function testName(TestCase $test): string
+    {
+        if (method_exists($test, 'name')) {
+            return $test->name();
+        }
+        /* This line is to support versions of PHPUnit previous to 11 */
+        return $test->getName();
     }
 }
