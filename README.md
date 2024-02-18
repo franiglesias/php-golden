@@ -4,9 +4,9 @@ A PHP library for snapshot 📸 testing.
 
 [A port from](https://pkg.go.dev/github.com/franiglesias/golden)
 
-**Caution**: This README is a Work in Progress. We are translating the original readme from Golden to the PHP version. There are parts that only apply to the Go version, features that are not yet in the PHP (Master is not yet).
+**⚠️⚠️ Caution ⚠️⚠️**: This README is a Work in Progress. We are translating the original readme from Golden to the PHP version. There are parts that only apply to the Go version, features that are not yet in the PHP (Master is not yet).
 
-[Cookbook: recipes and how-tos](doc/cookbook.md) (Not yet)
+[Cookbook: recipes and how-tos](doc/cookbook.md) (Not yet) ⛔️
 
 - [TL;DR](#TLDR)
     - [🛠 Installation](#installation)
@@ -53,21 +53,25 @@ This is useful for:
 
 **Roadmap/Pending features**:
 
+* `snapshot()` option for naming a test
+* Golden Master
+* Scrubbers support
+* In general, synchronize with the current features of the original Golden
+
 For future releases:
 
 * Ability and API to use custom reporters.
 * Ability and API to use custom normalizers.
 * Global options that apply to all tests.
 * Better scoping of Scrubbers for JSON content, using paths.
-* Defaults to Go conventions (i.e.: testdata folder instead of __snapshots)
 
 **Usage advice**: Only experimental.
 
 ### Installation
 
-Composer package installation via repotories. Not yet published as package.
+Composer package installation via repository. Not yet published as package.
 
-Add this key in your composer.json file.
+Add this key in your **composer.json** file.
 
 ```json
 "repositories": [
@@ -78,11 +82,15 @@ Add this key in your composer.json file.
 ],
 ```
 
-Now, you can require the package using. This will update to the last version.
+Now, you can require the package using the standard compose require.
 
 ```
-require --dev "franiglesias/golden" "dev-main"
+composer require --dev "franiglesias/golden" "dev-main"
 ```
+
+You can always update the library to get the last available version.
+
+Take into account that we will publish as a package when all basic features are completed.
 
 ### Basic Usage: Verify against an auto-generated snapshot
 
