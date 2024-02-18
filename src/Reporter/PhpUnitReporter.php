@@ -8,21 +8,22 @@ namespace Golden\Reporter;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 
+
 final class PhpUnitReporter implements Reporter
 {
 
     public function report(string $snapshot, string $subject): string
     {
         if ($snapshot === $subject) {
-            return "No differences found.";
+            return Reporter::NO_DIFFERENCES_FOUND;
         }
 
         // Show no differences message
         $builder = new UnifiedDiffOutputBuilder(
-            "--- Previous\n+++ Actual\n",
+            "--- Snapshot\n+++ Subject\n",
             false
         );
         $differ = new Differ($builder);
-        return sprintf("\nDifferences found:\n==================\n%s\n", $differ->diff($snapshot, $subject));
+        return sprintf(self::DIFFERENCES_TEMPLATE, $differ->diff($snapshot, $subject));
     }
 }

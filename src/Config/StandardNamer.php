@@ -8,22 +8,25 @@ namespace Golden\Config;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
+/*
+ * StandardNamer is a Namer implementation that builds snapshot names
+ * so they are stored in the same path as the test they are serving.
+ * This allows users to locate test data easily.
+ *
+ * */
+
 final class StandardNamer implements Namer
 {
 
-    public function __construct()
-    {
-    }
-
     public function name(TestCase $test, string $prefix): string
     {
-        $fileName = (new ReflectionClass($test))->getFileName();
+        $testFileName = (new ReflectionClass($test))->getFileName();
         $testCaseName = (new ReflectionClass($test))->getShortName();
 
         $name = $this->testName($test);
         $testName = $this->camelCaseToSnakeCase($name);
 
-        return $this->createPath(dirname($fileName), $prefix, $testCaseName, $testName);
+        return $this->createPath(dirname($testFileName), $prefix, $testCaseName, $testName);
     }
 
     private function camelCaseToSnakeCase($input): string
@@ -42,12 +45,19 @@ final class StandardNamer implements Namer
         return join(DIRECTORY_SEPARATOR, $flattened);
     }
 
-    public function testName(TestCase $test): string
+    private function testName(TestCase $test): string
     {
-        if (method_exists($test, 'name')) {
-            return $test->name();
+        if ($this->olderPhpUnit($test)) {
+            return $test->getName();
         }
-        /* This line is to support versions of PHPUnit previous to 11 */
-        return $test->getName();
+        return $test->name();
+    }
+
+    /**
+     * We could need to support some versions of phpunit that uses getName() instead of name()
+     */
+    private function olderPhpUnit(TestCase $test): bool
+    {
+        return !method_exists($test, 'name');
     }
 }

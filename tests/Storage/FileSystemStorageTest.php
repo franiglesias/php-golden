@@ -18,11 +18,11 @@ final class FileSystemStorageTest extends TestCase
     use SnapshotAssertions;
 
     private Storage $storage;
-    private vfsStreamDirectory $root;
+    private vfsStreamDirectory $vfs;
 
     protected function setUp(): void
     {
-        $this->root = vfsStream::setup();
+        $this->vfs = vfsStream::setup();
         $this->storage = new FileSystemStorage();
     }
 
@@ -30,7 +30,7 @@ final class FileSystemStorageTest extends TestCase
     /** @test */
     public function shouldWriteSnapshotInPath(): void
     {
-        $snapshotPath = $this->root->url() . "/my_snapshot.snap";
+        $snapshotPath = $this->pathInVfs("/my_snapshot.snap");
         $this->storage->keep($snapshotPath, "some content");
         $this->assertSnapshotWasCreated($snapshotPath);
     }
@@ -39,8 +39,9 @@ final class FileSystemStorageTest extends TestCase
     /** @test */
     public function shouldReadSnapshotInPath(): void
     {
-        $this->storage->keep("my_snapshot.snap", "some content");
-        $this->assertSnapshotContains("my_snapshot.snap", "some content");
+        $snapshotPath = $this->pathInVfs("/my_snapshot.snap");
+        $this->storage->keep($snapshotPath, "some content");
+        $this->assertSnapshotContains($snapshotPath, "some content");
     }
 
     #[Test]
@@ -49,5 +50,10 @@ final class FileSystemStorageTest extends TestCase
     {
         $this->expectException(SnapshotNotFound::class);
         $this->storage->retrieve("not_snapshot.here");
+    }
+
+    private function pathInVfs(string $snapshot): string
+    {
+        return $this->vfs->url() . $snapshot;
     }
 }

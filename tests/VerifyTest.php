@@ -2,7 +2,7 @@
 
 declare (strict_types=1);
 
-namespace Golden\Config;
+namespace Tests\Golden;
 
 use Golden\Storage\MemoryStorage;
 use Golden\Storage\Storage;
