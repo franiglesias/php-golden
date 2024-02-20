@@ -4,13 +4,13 @@ declare (strict_types=1);
 
 namespace Tests\Golden;
 
+use Golden\Master\Combinations;
 use Golden\Storage\MemoryStorage;
 use Golden\Storage\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tests\Golden\Helpers\ExampleTest;
 use Tests\Golden\Helpers\SnapshotAssertions;
-use function Golden\combinations;
 
 final class GoldenMasterTest extends TestCase
 {
@@ -39,7 +39,7 @@ final class GoldenMasterTest extends TestCase
 
         $collection = ["one", "two", "three"];
 
-        $this->testCase->master($sut, combinations($collection));
+        $this->testCase->master($sut, Combinations::of($collection));
         $this->assertSnapshotWasCreated($this->expectedPath);
     }
 
@@ -60,7 +60,7 @@ final class GoldenMasterTest extends TestCase
         $colors = ["brown", "blue", "yellow"];
         $shapes = ["square", "circle"];
 
-        $this->testCase->master($sut, combinations($numbers, $animals, $colors, $shapes));
+        $this->testCase->master($sut, Combinations::of($numbers, $animals, $colors, $shapes));
         $this->assertSnapshotWasCreated($this->expectedPath);
     }
 }

@@ -6,7 +6,8 @@ namespace Golden;
 
 use Golden\Config\Namer;
 use Golden\Config\StandardNamer;
-use Golden\Master\Combination;
+use Golden\Master\Combinations;
+use Golden\Master\Runner;
 use Golden\Normalizer\JsonNormalizer;
 use Golden\Normalizer\Normalizer;
 use Golden\Reporter\PhpUnitReporter;
@@ -62,17 +63,9 @@ trait Golden
         }
     }
 
-    public function master(callable $sut, array $values, callable ...$options)
+    public function master(callable $sut, Combinations $params, callable ...$options)
     {
-        $combinations = $this->prepareCombinations($values);
-
-        $subject = [];
-        foreach ($combinations as $key => $combination) {
-            $subject[] = new Combination(
-                $key + 1,
-                $combination,
-                $sut(...$combination));
-        }
+        $subject = (new Runner($sut))->execute($params->all());
 
         $options[] = extension(".snap.json");
 
@@ -116,53 +109,5 @@ trait Golden
         /* @var $this TestCase|Golden */
         $this->assertEquals($snapshot, $normalized);
     }
-
-    public function prepareCombinations(array $values): array
-    {
-        // generate combinations
-        $result = [[]];
-        foreach ($values as $parameter) {
-            $tmp = [];
-            foreach ($parameter as $value) {
-                foreach ($result as $combination) {
-                    $t = $combination;
-                    $t[] = $value;
-                    $tmp[] = $t;
-                }
-            }
-            $result = $tmp;
-        }
-        return $result;
-    }
 }
 
-
-/*
-
-func Generate(arr [][]any) [][]any {
-	// Return empty slice if there is nothing to combine
-	if len(arr) == 0 {
-		return [][]any{}
-	}
-
-	// Result will be a slice of slices holding each parameters combination
-	result := [][]any{{}}
-
-	// traverse the slice of parameters value slice
-	for _, parameter := range arr {
-		var temp [][]any
-		// traverse the values in this parameter value slice
-		for _, value := range parameter {
-			// append the value to each combination
-			for _, combination := range result {
-				temp = append(temp, append(combination, value))
-			}
-		}
-		// update result
-		result = temp
-	}
-
-	return result
-}
-
- */

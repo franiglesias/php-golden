@@ -16,14 +16,7 @@ function folder(string $prefix): Closure
     return fn(Config $config) => $config->setPrefix($prefix);
 }
 
-
 function waitApproval(): Closure
 {
     return fn(Config $config) => $config->waitApproval();
-}
-
-
-function combinations(array ...$values): array
-{
-    return $values;
 }
