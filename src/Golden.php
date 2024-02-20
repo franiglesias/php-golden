@@ -6,6 +6,7 @@ namespace Golden;
 
 use Golden\Config\Namer;
 use Golden\Config\StandardNamer;
+use Golden\Master\Combination;
 use Golden\Normalizer\JsonNormalizer;
 use Golden\Normalizer\Normalizer;
 use Golden\Reporter\PhpUnitReporter;
@@ -59,6 +60,19 @@ trait Golden
         } else {
             $this->verifyFlow($name, $normalized);
         }
+    }
+
+    public function master(callable $sut, array $combinations, callable ...$options)
+    {
+        $combi = [];
+        foreach ($combinations[0] as $key => $value) {
+            $result = $sut($value);
+            $combi[] = new Combination($key + 1, $value, $result);
+        }
+
+        $options[] = extension(".snap.json");
+
+        $this->verify($combi, ...$options);
     }
 
     private function normalize($subject): string

@@ -21,3 +21,9 @@ function waitApproval(): Closure
 {
     return fn(Config $config) => $config->waitApproval();
 }
+
+
+function combinations(array ...$values): array
+{
+    return $values;
+}
