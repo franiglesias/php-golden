@@ -62,17 +62,21 @@ trait Golden
         }
     }
 
-    public function master(callable $sut, array $combinations, callable ...$options)
+    public function master(callable $sut, array $values, callable ...$options)
     {
-        $combi = [];
-        foreach ($combinations[0] as $key => $value) {
-            $result = $sut($value);
-            $combi[] = new Combination($key + 1, $value, $result);
+        $combinations = $this->prepareCombinations($values);
+
+        $subject = [];
+        foreach ($combinations as $key => $combination) {
+            $subject[] = new Combination(
+                $key + 1,
+                $combination,
+                $sut(...$combination));
         }
 
         $options[] = extension(".snap.json");
 
-        $this->verify($combi, ...$options);
+        $this->verify($subject, ...$options);
     }
 
     private function normalize($subject): string
@@ -112,4 +116,53 @@ trait Golden
         /* @var $this TestCase|Golden */
         $this->assertEquals($snapshot, $normalized);
     }
+
+    public function prepareCombinations(array $values): array
+    {
+        // generate combinations
+        $result = [[]];
+        foreach ($values as $parameter) {
+            $tmp = [];
+            foreach ($parameter as $value) {
+                foreach ($result as $combination) {
+                    $t = $combination;
+                    $t[] = $value;
+                    $tmp[] = $t;
+                }
+            }
+            $result = $tmp;
+        }
+        return $result;
+    }
 }
+
+
+/*
+
+func Generate(arr [][]any) [][]any {
+	// Return empty slice if there is nothing to combine
+	if len(arr) == 0 {
+		return [][]any{}
+	}
+
+	// Result will be a slice of slices holding each parameters combination
+	result := [][]any{{}}
+
+	// traverse the slice of parameters value slice
+	for _, parameter := range arr {
+		var temp [][]any
+		// traverse the values in this parameter value slice
+		for _, value := range parameter {
+			// append the value to each combination
+			for _, combination := range result {
+				temp = append(temp, append(combination, value))
+			}
+		}
+		// update result
+		result = temp
+	}
+
+	return result
+}
+
+ */
