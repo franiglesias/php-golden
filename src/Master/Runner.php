@@ -23,7 +23,8 @@ final class Runner
             $subject[] = new Test(
                 $key + 1,
                 $scenario,
-                ($this->sut)(...$scenario));
+                ($this->sut)(...$scenario)
+            );
         }
         return $subject;
     }

@@ -11,7 +11,7 @@ final class Test implements JsonSerializable
 {
 
     private int $id;
-    private $params;
+    private array $params;
     private string $output;
 
     public function __construct(int $id, array $params, string $output)
