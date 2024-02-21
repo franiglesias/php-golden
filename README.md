@@ -54,7 +54,7 @@ This is useful for:
 **Roadmap/Pending features**:
 
 * Golden Master ✅
-* `snapshot()` option for naming a test
+* `snapshot()` option for naming a test ✅
 * Scrubbers support
 * In general, synchronize with the current features of the original Golden
 
@@ -63,7 +63,7 @@ For future releases:
 * Ability and API to use custom reporters.
 * Ability and API to use custom normalizers.
 * Global options that apply to all tests.
-* Better scoping of Scrubbers for JSON content, using paths.
+* Scrubbers for JSON content, using paths.
 
 **Usage advice**: Only experimental.
 
@@ -774,5 +774,5 @@ func TestSomething (t *testing.T) {
 
 Will generate the snapshot: `__snapshots/TestSomething/should_do_something.snap`
 
-You can customize the snapshot file name by passing the option `golden.Snapshot("new_snapshot_name")`. You must do this if you want to have two or more different snapshots in the same test. The first one could use the default name.
+You can customize the snapshot file name by passing the option `snapshot("new_snapshot_name")`. You must do this if you want to have two or more different snapshots in the same test. The first one could use the default name, but the subsequents will reuse it. You can also use this feature for making different tests use the same snapshot.
 
