@@ -49,9 +49,11 @@ This is useful for:
 * Understand and put legacy code under test.
 * Obtain high code coverage when starting to refactor legacy code or code that has no tests.
 
-**Current Status**: v0.0. Not complete port yet, but it has support for Verify and Approval modes
+**Current Status**: v0.0.x Not completed port yet, but it has support for Verify, Approval and Master modes
 
 **Roadmap/Pending features**:
+
+For official first release as a package:
 
 * Golden Master ✅
 * `snapshot()` option for naming a test ✅
@@ -167,38 +169,91 @@ If the snapshot is ok for you, remove the option `waitApproval()`, so it can be 
 
 ### Basic Usage: Golden Master mode
 
-Master function is ready. Check tests. Documentation is not updated yet.
-
-**This section is not updated yet** 
-
-Golden Master mode is useful when you want to generate a lot of tests combining different values of the subject under test parameters. It will generate all possible combinations, creating a detailed snapshot with all the results.
+_Golden Master_ mode is useful when you want to generate a lot of tests combining different values of the subject under test parameters. It will generate all possible combinations, creating a detailed snapshot with all the results.
 
 You will need to create a Wrapper function that exercises the subject under test managing both parameters and all return values, including errors. You will need to manage to return a `string` representation of the outcome of the SUT.
 
-Here is an example testing a hypothetical `Division` function.
+Here is an example of a test in the GildedRose kata.
 
-```go
-func TestWithGoldenMaster(t *testing.T) {
-    f := func(args ...any) any {
-        result, err := Division(args[0].(float64), args[1].(float64))
-        if err != nil {
-            return err.Error()
-        }
-        return result
+```php
+class GildedRoseTest extends TestCase
+{
+    use Golden;
+    public function testFoo(): void
+    {
+        $sut = function(...$params): string {
+            $items = [new Item($params[0], $params[1], $params[2])];
+            $gildedRose = new GildedRose($items); ;
+            $gildedRose->updateQuality();
+            return $items[0]->__toString();
+        };
+
+        $names = [
+            'foo',
+            'Aged Brie',
+            'Sulfuras, Hand of Ragnaros',
+            'Backstage passes to a TAFKAL80ETC concert',
+            'Conjured'
+        ];
+        $sellIns = [
+            -1,
+            0,
+            1,
+            10,
+            20,
+            30
+        ];
+        $qualities = [
+            0,
+            1,
+            10,
+            50,
+            80,
+            100
+        ];
+        $this->master($sut, Combinations::of($names, $sellIns, $qualities));
     }
-
-    dividend := []any{1.0, 2.0}
-    divisor := []any{0.0, -1.0, 1.0, 2.0}
-
-    gld.Master(t, f, golden.Combine(dividend, divisor))
 }
 ```
 
 #### How it works
 
-The first time you run the test, a snapshot file will be generated at `__snapshots/TestWithGoldenMaster.snap.json` in the same package of the test. This will be a JSON file with a description of the inputs and outputs of each generated test. The test itself will pass except if you use the `waitApproval()` option.
+The first time you run the test, a snapshot file will be generated at `__snapshots/GildedRoseTest/test_foo.snap.json` in the same folder of the test. This will be a JSON file with a description of the inputs and outputs of each generated test. The test itself will pass except if you use the `waitApproval()` option. Here you have a fragment of the snapshot, in which you can see the params and the generated output.
 
-As a bonus, you can use GoldenMaster tests in Approval mode.
+```json
+[
+    {
+        "id": 1,
+        "params": [
+            "foo",
+            -1,
+            0
+        ],
+        "output": "foo, -2, 0"
+    },
+    {
+        "id": 2,
+        "params": [
+            "Aged Brie",
+            -1,
+            0
+        ],
+        "output": "Aged Brie, -2, 2"
+    },
+    {
+        "id": 3,
+        "params": [
+            "Sulfuras, Hand of Ragnaros",
+            -1,
+            0
+        ],
+        "output": "Sulfuras, Hand of Ragnaros, -1, 0"
+    },
+...
+]
+```
+
+As a bonus, you can use GoldenMaster tests in Approval mode. In fact, you can pass all the common options.
 
 ## What is Golden?
 
@@ -325,84 +380,123 @@ As you have probably guessed, **Golden** takes its name from this technique... a
 
 A combinatorial test is a bit trickier than a plain snapshot. Not too much. The difficult part is to expose a simple API, but maybe **Golden** has something good to offer.
 
-Let's see an example. Imagine that you have this function that creates a border around a title for console output. We don't need to know anything about the implementation. We should have enough with its signature.
+I will use a test from the GildedRose Refactoring kata as an example. This is the basic API of the class. To exercise this class as subject under tests, we need to pass an array of Item objects in construction, and invoke the `updateQuality` method. The array of Item object will be updated and that is the outcome we are going to test. 
 
-```go
-func Border(title string, part string, span int) string {
-    width := span*2 + len(title) + 2
-    top := strings.Repeat(part, width)
-    body := part + strings.Repeat(" ", span) + title + strings.Repeat(" ", span) + part
-    return top + "\n" + body + "\n" + top + "\n"
+```php
+final class GildedRose
+{
+    /**
+     * @var Item[]
+     */
+    private $items;
+
+    public function __construct(array $items)
+    {
+        $this->items = $items;
+    }
+
+    public function updateQuality(): void
+    {
+        // A bunch of nested conditionals    
+    }
 }
-```
 
-The signature has three parameters: the first two are strings and the third is an integer. We want to test the function with different values for each parameter.
+```
 
 #### Wrap the subject under test
 
-The first thing we need is a wrapper function that takes any number of parameters of `any` type and returns something. We are going to pass this function to the `Master` method.
+The first thing we need is a wrapper variadic function that takes any number of parameters of any type and returns something. We are going to pass this function to the `master` method. We can do this with an anonymous function.
 
-```go
-f := func(args ...any) any {
-    ...
-}
+```php
+$sut = function(...$params): string {
+    // ...
+};
 ```
 
-The body of the wrapper must convert the received parameters back to the types required by the SUT. How to do this is totally up to you and depends on the concrete types. This example is pretty simple, and we only need to perform a type assertion. As you can see in the code, we receive the params as a slice of `any`, so you will identify the correspondent parameter by its position.
+The body of the wrapper must convert the received parameters back to the types required by the SUT. You need to identify the proper data by position. In this particular example we don't need to apply transformations or casting to the `$params` items. 
 
-The wrapper function will return `any` type. But if you find problems with doing so, try to convert the output to `string`.
+The wrapper function could return any type with the result. But if you find problems with doing so, try to convert the output to `string`. It is a safe bet, and it is what we prefer here:
 
-```go
-f := func(args ...any) any {
-    title := args[0].(string)
-    part := args[1].(string)
-    span := args[2].(int)
+```php
+$sut = function(...$params): string {
+    $name = $params[0];
+    $sellIn = $params[1];
+    $quality = $params[2];
     
-    return Border(title, part, span)
-}
+    $items = [new Item($name, $sellIn, $quality)];
+    
+    $gildedRose = new GildedRose($items); ;
+    $gildedRose->updateQuality();
+    
+    return $items[0]->__toString();
+};
 ```
 
-**What can I do if the SUT returns an error?** The best thing is to return the error using the `Error()` method. It should appear in the snapshot as is, so you will know what input combination generated it. Let's see an example. This is the function we want to test:
+**What can I do if the SUT throws an exception?** The best thing is to capture the exception with a `try/catch` and return something that can be informative, like the exception message. It should appear in the snapshot as is, so you will know what input combination generated it. 
 
-```go
-func Division(a float64, b float64) (float64, error) {
-    if b == 0 {
-       return 0, errors.New("division by 0")
+Let's imagine that the GildedRose class could throw an exception for whatever reason.
+
+```php
+$sut = function(...$params): string {
+    $name = $params[0];
+    $sellIn = $params[1];
+    $quality = $params[2];
+    
+    $items = [new Item($name, $sellIn, $quality)];
+    
+    $gildedRose = new GildedRose($items);
+    
+    try {
+        $gildedRose->updateQuality();
+    } catch (\Exception $e) {
+        return $e->getMessage();
     }
 
-    return a / b, nil
-}
+    return $items[0]->__toString();
+};
 ```
 
-And this is the wrapper function we've created for it:
+We capture a generic exception in the catch block and return the message string. That's all. The message will appear as the output of the input combination. You can catch specific exceptions if you wish, or customize the returned string with more information. It's up to you.
 
-```go
-f := func(args ...any) any {
-    result, err := Division(args[0].(float64), args[1].(float64))
-    if err != nil {
-        return err.Error()
-    }
-    return result
-}
-```
-
-**What can I do if the SUT doesn't return an output?** A suggested technique for this is to add some kind of logging facility that you can retrieve after exercising the subject under tests and retrieve that logged output.
+**What can I do if the SUT doesn't return an output?** A suggested technique for this is to add some kind of logging facility that you can retrieve after exercising the subject under tests and retrieve that logged output. In fact, this is what is happening in this example: the SUT itself doesn't return anything, we capture the outcome in another way.
 
 #### Prepare lists of values for each parameter
 
-The next thing we need to do is to prepare lists of values for each parameter. You will populate a slice of `any`, with all the values that you want to test. The slice is typed as `any` to allow any kind of data, but remember to use valid types for the signature of the SUT.
+The next thing we need to do is to prepare lists of values for each parameter. You will populate an array with all the values that you want to test. Remember to use valid types for the signature of the SUT.
 
-```go
-titles := []any{"Example 1", "Example long enough", "Another thing"}
-parts := []any{"-", "=", "*", "#"}
-times := []any{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+```php
+$names = [
+    'foo',
+    'Aged Brie',
+    'Sulfuras, Hand of Ragnaros',
+    'Backstage passes to a TAFKAL80ETC concert',
+    'Conjured'
+];
+$sellIns = [
+    -1,
+    0,
+    1,
+    10,
+    20,
+    30
+];
+$qualities = [
+    0,
+    1,
+    10,
+    50,
+    80,
+    100
+];
 ```
 
-You will pass the collections of values with the convenience function `golden.Combine()`:
+You will pass the collections of values with the convenience function `Combinations::of()`.
 
-```go
-golden.Combine(titles, parts, times)
+```php
+$this->master($sut, Combinations::of($names, $sellIns, $qualities));
 ```
+
+In fact, `Combinations::of()` if a constructor for an object that will manage and generate all possible values combinations.
 
 **How should I choose the values?** It is an interesting question. In this example, it doesn't matter the specific values because the code only has one execution flow. In many cases, you can find interesting values in conditionals, that control the execution flow, allowing you to obtain the most code coverage executing all possible branches. The precedent and following values of those are also interesting. If you are unsure, you can even use a batch with several random values. Remember that once you set up the test, adding or removing values is very easy.
 
@@ -410,121 +504,97 @@ golden.Combine(titles, parts, times)
 
 And this is how you run a Golden Master test with **Golden**:
 
-```go
-func TestGoldenMaster(t *testing.T) {
-    // define the wrapper function
-    f := func(args ...any) any {
-        title := args[0].(string)
-        part := args[1].(string)
-        span := args[2].(int)
-        return Border(title, part, span)
-    }
-    
-    // define the input values to combine
-    titles := []any{"Example 1", "Example long enough", "Another thing"}
-    parts := []any{"-", "=", "*", "#"}
-    times := []any{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+```php
+public function testFoo(): void
+{
+    // wrapper function that exercise the subject under test and return a result for each combination
+    $sut = function(...$params): string {
+        $name = $params[0];
+        $sellIn = $params[1];
+        $quality = $params[2];
 
-    // run the test
-    golden.Master(t, f, golden.Combine(titles, parts, times))
+        $items = [new Item($name, $sellIn, $quality)];
+
+        $gildedRose = new GildedRose($items);
+
+        try {
+            $gildedRose->updateQuality();
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        return $items[0]->__toString();
+    };
+    
+    // define lists of values for each parameter
+    $names = [
+        'foo',
+        'Aged Brie',
+        'Sulfuras, Hand of Ragnaros',
+        'Backstage passes to a TAFKAL80ETC concert',
+        'Conjured'
+    ];
+    $sellIns = [
+        -1,
+        0,
+        1,
+        10,
+        20,
+        30
+    ];
+    $qualities = [
+        0,
+        1,
+        10,
+        50,
+        80,
+        100
+    ];
+    // generates all combinations and run the wrapper function for each of them
+    $this->master($sut, Combinations::of($names, $sellIns, $qualities));
 }
+
 ```
 
-This example will generate 132 tests: 3 titles * 4 parts * 11 times.
+This example will generate 180 tests: 5 products * 6 sellIn * 6 qualities.
 
-`Master` method will invoke `Verify` under the hood, using the result of executing all the combinations as the subject to create the snapshot. This is a very special snapshot, by the way. First of all, it is a JSON file containing an array of JSON objects, each of them representing one example. Like this:
+`master` method will invoke `verify` under the hood, using the result of executing all the combinations as the subject to create the snapshot. This is a very special snapshot, by the way. First of all, it is a JSON file containing an array of JSON objects, each of them representing one example. Like this:
 
 
 ```json
 [
   {
-    "Id": 1,
-    "Params": "Example 1, -, 0",
-    "Output": "-----------\n-Example 1-\n-----------\n"
+    "id": 1,
+    "params": [
+      "foo",
+      -1,
+      0
+    ],
+    "output": "foo, -2, 0"
   },
   {
-    "Id": 2,
-    "Params": "Example long enough, -, 0",
-    "Output": "---------------------\n-Example long enough-\n---------------------\n"
+    "id": 2,
+    "params": [
+      "Aged Brie",
+      -1,
+      0
+    ],
+    "output": "Aged Brie, -2, 2"
   },
   {
-    "Id": 3,
-    "Params": "Another thing, -, 0",
-    "Output": "---------------\n-Another thing-\n---------------\n"
+    "id": 3,
+    "params": [
+      "Sulfuras, Hand of Ragnaros",
+      -1,
+      0
+    ],
+    "output": "Sulfuras, Hand of Ragnaros, -1, 0"
   },
-  
+  // ...
 ]
 ```
 
 I think this will help you to understand the snapshot, identify easily interesting cases, and even post-process the result if you need to.
-
-#### Another example, managing errors:
-
-This is a test in which we manage the error that can be returned by the SUT:
-
-```go
-func TestManagingError(t *testing.T) {
-    f := func(args ...any) any {
-        result, err := Division(args[0].(float64), args[1].(float64))
-        if err != nil {
-            return err.Error()
-        }
-        return result
-    }
-
-    dividend := []any{1.0, 2.0}
-    divisor := []any{0.0, -1.0, 1.0, 2.0}
-
-    gld.Master(t, f, golden.Combine(dividend, divisor))
-}
-```
-
-Take a look at the first records of the snapshot. The error message appears as the output of the corresponding combination.
-
-```json
-[
-  {
-    "Id": 1,
-    "Params": "1, 0",
-    "Output": "division by 0"
-  },
-  {
-    "Id": 2,
-    "Params": "2, 0",
-    "Output": "division by 0"
-  },
-  {
-    "Id": 3,
-    "Params": "1, -1",
-    "Output": -1
-  },
-  {
-    "Id": 4,
-    "Params": "2, -1",
-    "Output": -2
-  },
-  {
-    "Id": 5,
-    "Params": "1, 1",
-    "Output": 1
-  },
-  {
-    "Id": 6,
-    "Params": "2, 1",
-    "Output": 2
-  },
-  {
-    "Id": 7,
-    "Params": "1, 2",
-    "Output": 0.5
-  },
-  {
-    "Id": 8,
-    "Params": "2, 2",
-    "Output": 1
-  }
-]
-```
 
 ## Customizing the behavior
 
@@ -607,7 +677,6 @@ class ParrotTest extends TestCase
     }
 }
 ```
-
 
 This will generate the snapshot in `__snapshots/ParrotTest/test_speed_of_european_parrot.data` in the same package of the test.
 
