@@ -4,8 +4,8 @@ declare (strict_types=1);
 
 namespace Golden;
 
-use Golden\Config\Namer;
-use Golden\Config\StandardNamer;
+use Golden\Config\PathFinder;
+use Golden\Config\StandardPathFinder;
 use Golden\Master\Combinations;
 use Golden\Master\Runner;
 use Golden\Normalizer\JsonNormalizer;
@@ -22,7 +22,7 @@ trait Golden
     private Storage $storage;
     private Normalizer $normalizer;
     private Config $config;
-    private Namer $namer;
+    private PathFinder $namer;
     private Reporter $reporter;
 
 
@@ -33,7 +33,7 @@ trait Golden
         }
         $this->normalizer = new JsonNormalizer();
         $this->config = new Config();
-        $this->namer = new StandardNamer();
+        $this->namer = new StandardPathFinder();
         $this->reporter = new PhpUnitReporter();
     }
 

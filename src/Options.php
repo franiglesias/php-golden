@@ -20,3 +20,9 @@ function waitApproval(): Closure
 {
     return fn(Config $config) => $config->waitApproval();
 }
+
+
+function snapshot(string $snapshot): Closure
+{
+    return fn(Config $config) => $config->setSnapshot($snapshot);
+}

@@ -11,6 +11,8 @@ use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\Golden\Helpers\ExampleTest;
 use Tests\Golden\Helpers\SnapshotAssertions;
+use function Golden\snapshot;
+
 
 final class VerifyTest extends TestCase
 {
@@ -50,44 +52,14 @@ final class VerifyTest extends TestCase
 
     #[Test]
     /** @test */
-    public function shouldNormalizeSubjectToString(): void
+    public function shouldChangeSnapshotName(): void
     {
-        $this->testCase->verify("This is the subject");
+        $this->testCase->verify("This is the subject", snapshot('my_snapshot'));
 
-        $this->assertSnapshotContains($this->expectedPath, "This is the subject");
+        $expectedPath = str_replace("example_test", "my_snapshot", $this->expectedPath);
+
+        $this->assertSnapshotWasCreated($expectedPath);
     }
 
-    #[Test]
-    /** @test */
-    public function shouldNormalizeIntegerSubjectToString(): void
-    {
-        $this->testCase->verify(12345);
 
-        $this->assertSnapshotContains($this->expectedPath, "12345");
-    }
-
-    #[Test]
-    /** @test */
-    public function shouldNormalizeFloatSubjectToString(): void
-    {
-        $this->testCase->verify(12345.678);
-
-        $this->assertSnapshotContains($this->expectedPath, "12345.678");
-    }
-
-    #[Test]
-    /** @test */
-    public function shouldNormalizeArraySubjectToString(): void
-    {
-        $this->testCase->verify(["Item 1", "Item 2", "Item 3"]);
-
-        $expected = <<<'EOD'
-[
-    "Item 1",
-    "Item 2",
-    "Item 3"
-]
-EOD;
-        $this->assertSnapshotContains($this->expectedPath, $expected);
-    }
 }

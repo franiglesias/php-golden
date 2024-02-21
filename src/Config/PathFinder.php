@@ -7,13 +7,13 @@ namespace Golden\Config;
 use PHPUnit\Framework\TestCase;
 
 /*
- * Namer
+ * PathFinder
  *
  * defines the role of building a file path for the snapshot based on the location of the test being executed
  *
  * */
 
-interface Namer
+interface PathFinder
 {
-    public function name(TestCase $test, string $prefix): string;
+    public function path(TestCase $test, string $prefix): string;
 }

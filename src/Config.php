@@ -5,7 +5,8 @@ declare (strict_types=1);
 namespace Golden;
 
 
-use Golden\Config\Namer;
+use Golden\Config\NameExtractor;
+use Golden\Config\PathFinder;
 use PHPUnit\Framework\TestCase;
 
 final class Config
@@ -14,17 +15,24 @@ final class Config
     private string $prefix;
     private string $extension;
     private bool $approval;
+    private string $snapshot;
+    private NameExtractor $nameExtractor;
 
     public function __construct()
     {
         $this->prefix = "__snapshots";
         $this->extension = ".snap";
         $this->approval = false;
+        $this->snapshot = '';
+        $this->nameExtractor = new NameExtractor();
     }
 
-    public function name(TestCase $test, Namer $namer): string
+    public function name(TestCase $test, PathFinder $pathFinder): string
     {
-        return $namer->name($test, $this->prefix()) . $this->extension();
+        $testName = $this->snapshotFileName($test);
+
+        $pathWithTrailingSlash = $pathFinder->path($test, $this->prefix);
+        return $pathWithTrailingSlash . $testName . $this->extension;
     }
 
     public function setPrefix(string $prefix): void
@@ -37,6 +45,12 @@ final class Config
         $this->extension = $extension;
     }
 
+    public function setSnapshot(string $snapshot)
+    {
+        $this->snapshot = $snapshot;
+    }
+
+
     public function waitApproval(): void
     {
         $this->approval = true;
@@ -47,13 +61,12 @@ final class Config
         return $this->approval;
     }
 
-    private function extension(): string
+    private function snapshotFileName(TestCase $test): string
     {
-        return $this->extension;
+        if ($this->snapshot != '') {
+            return $this->snapshot;
+        }
+        return $this->nameExtractor->name($test);
     }
 
-    private function prefix(): string
-    {
-        return $this->prefix;
-    }
 }
