@@ -54,7 +54,8 @@ final class StandardNamer implements Namer
     }
 
     /**
-     * We could need to support some versions of phpunit that uses getName() instead of name()
+     * We could need to support some versions of phpunit that uses getName()
+     * instead of name()
      */
     private function olderPhpUnit(TestCase $test): bool
     {

@@ -69,7 +69,7 @@ For future releases:
 
 ### Installation
 
-Composer package installation via repository. Not yet published as package.
+Composer package installation via repository. Not yet published as package. 
 
 Add this key in your **composer.json** file.
 
@@ -85,7 +85,7 @@ Add this key in your **composer.json** file.
 Now, you can require the package using the standard compose require.
 
 ```
-composer require --dev "franiglesias/golden" "dev-main"
+composer require --dev franiglesias/golden "dev-main"
 ```
 
 You can always update the library to get the last available version.

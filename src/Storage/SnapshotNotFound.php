@@ -5,7 +5,9 @@ declare (strict_types=1);
 namespace Golden\Storage;
 
 
-final class SnapshotNotFound extends \RuntimeException
+use RuntimeException;
+
+final class SnapshotNotFound extends RuntimeException
 {
 
     public static function withName(string $name): self

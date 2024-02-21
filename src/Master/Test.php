@@ -5,7 +5,9 @@ declare (strict_types=1);
 namespace Golden\Master;
 
 
-final class Test implements \JsonSerializable
+use JsonSerializable;
+
+final class Test implements JsonSerializable
 {
 
     private int $id;
@@ -27,6 +29,5 @@ final class Test implements \JsonSerializable
             "params" => $this->params,
             "output" => $this->output,
         ];
-
     }
 }
