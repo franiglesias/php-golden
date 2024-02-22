@@ -18,7 +18,8 @@
       "Golden\\": "src"
     },
     "files": [
-      "src/Options.php"
+      "src/Options.php",
+      "src/Normalizer/Scrubber/Options.php"
     ]
   },
   "config": {
