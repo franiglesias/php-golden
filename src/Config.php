@@ -26,6 +26,7 @@ final class Config
         $this->approval = false;
         $this->snapshot = '';
         $this->nameExtractor = new NameExtractor();
+        $this->scrubbers = [];
     }
 
     public function name(TestCase $test, PathFinder $pathFinder): string

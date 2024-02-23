@@ -816,45 +816,58 @@ class CreditCardScrubberTest extends TestCase
 
 `ULID`: replaces a Universally Unique Lexicographically Sortable Identifier
 
-```go
-t.Run("should replace ULID", func(t *testing.T) {
-    scrubber := golden.ULID()
-    subject := "This is an ULID: 01HNAZ89E30JHFNJGQ84QFJBP3"
-    assert.Equal(t, "This is an ULID: <ULID>", scrubber.Clean(subject))
-})
+```php
+final class ULIDScrubberTest extends TestCase
+{
+    #[Test]
+    /** @test */
+    public function shouldReplaceULID(): void
+    {
+        $scrubber = new ULID();
+        $subject = "This is an ULID: 01HNAZ89E30JHFNJGQ84QFJBP3";
+        assertEquals("This is an ULID: <ULID>", $scrubber->clean($subject));
+    }
+}
 ```
-
 
 ### Options for Scrubbers
 
 `Replacement`: allows you to customize the replacement of any scrubber supporting options. Some scrubbers will put a placeholder as a replacement, but in some cases, you could prefer a different placeholder.
 
-```go
-t.Run("should replace ULID with custom replacement", func(t *testing.T) {
-    scrubber := golden.ULID(golden.Replacement("[[Another thing]]"))
-    subject := "This is an ULID: 01HNAZ89E30JHFNJGQ84QFJBP3"
-    assert.Equal(t, "This is an ULID: [[Another thing]]", scrubber.Clean(subject))
-})
+```php
+#[Test]
+/** @test */
+public function shouldReplaceULIDWithCustomReplacement(): void
+{
+    $scrubber = new ULID(replacement("[[Another thing]]"));
+    $subject = "This is an ULID: 01HNAZ89E30JHFNJGQ84QFJBP3";
+    assertEquals("This is an ULID: [[Another thing]]", $scrubber->clean($subject));
+}
 ```
-
 A fixed example of the value will help to better understand the generated snapshot to non-technical people.
 
-```go
-t.Run("should replace ULID with custom replacement", func(t *testing.T) {
-    scrubber := golden.ULID(golden.Replacement("01HNB9N6T6DEB1XN10C58DT1WE"))
-    subject := "This is an ULID: 01HNAZ89E30JHFNJGQ84QFJBP3"
-    assert.Equal(t, "This is an ULID: 01HNB9N6T6DEB1XN10C58DT1WE", scrubber.Clean(subject))
-})
+```php
+#[Test]
+/** @test */
+public function shouldReplaceULIDWithAnotherULID(): void
+{
+    $scrubber = new ULID(replacement("01HNB9N6T6DEB1XN10C58DT1WE"));
+    $subject = "This is an ULID: 01HNAZ89E30JHFNJGQ84QFJBP3";
+    assertEquals("This is an ULID: 01HNB9N6T6DEB1XN10C58DT1WE", $scrubber->clean($subject));
+}
 ```
 
 `Format`: allows you to pass a format string that provides some context for replacements, so they will be only applied in certain parts of the output. In the following example, we only want to apply the obfuscation to the _Credit card_ field, but not to other codes that could be similar.
 
-```go
-t.Run("should obfuscated only credit card number", func(t *testing.T) {
-    scrubber := golden.CreditCard(golden.Format("Credit card: %s"))
-    subject := "Credit card: 1234-5678-9012-1234, Another code: 4561-1234-4532-6543"
-    assert.Equal(t, "Credit card: ****-****-****-1234, Another code: 4561-1234-4532-6543", scrubber.Clean(subject))
-})
+```php
+#[Test]
+/** @test */
+public function shouldObfuscateOnlyFieldCreditCard(): void
+{
+    $scrubber = new CreditCard(format("Credit card: %s"));
+    $subject = "Credit card: 1234-5678-9012-1234, Another code: 4561-1234-4532-6543";
+    assertEquals("Credit card: ****-****-****-1234, Another code: 4561-1234-4532-6543", $scrubber->clean($subject));
+}
 ```
 
 ## How snapshots are named
