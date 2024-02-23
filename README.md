@@ -4,7 +4,7 @@ A PHP library for snapshot 📸 testing.
 
 [A port from](https://pkg.go.dev/github.com/franiglesias/golden)
 
-**⚠️⚠️ Caution ⚠️⚠️**: This README is a Work in Progress. We are translating the original readme from Golden to the PHP version. There are parts that only apply to the Go version, features that are not yet in the PHP (Master is not yet).
+**⚠️️ Caution ⚠️**: This README is a Work in Progress. We are translating the original readme from Golden to the PHP version. Maybe, we have some typos or references to the Go version. 
 
 [Cookbook: recipes and how-tos](doc/cookbook.md) (Not yet) ⛔️
 
