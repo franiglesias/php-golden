@@ -56,8 +56,8 @@ For official first release as a package:
 
 * Golden Master ✅
 * `snapshot()` option for naming a test ✅
-* Scrubbers support
-* In general, synchronize with the current features of the original Golden
+* Scrubbers support ✅
+* In general, synchronize with the current features of the original Golden ✅
 
 For future releases:
 
@@ -66,7 +66,7 @@ For future releases:
 * Global options that apply to all tests.
 * Scrubbers for JSON content, using paths.
 
-**Usage advice**: Only experimental.
+**Usage advice**: Experimental until a proper composer package is published.
 
 ### Installation
 
