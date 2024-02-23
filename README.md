@@ -758,21 +758,41 @@ For example, in the previous test, we used:
 $scrubber = new RegexScrubber("/\\d{2}:\\d{2}:\\d{2}.\\d{3}/", "<Current Time>");
 ```
 
-You can encapsulate it in a constructor function. This way you can easily reuse it in all the tests in which it makes sense.
+This is totally fine, but if you really need to reuse the logic in several tests, the best way is to create your own specialized scrubber by creating a class that implements Scrubber interface, delegating the behaviour to a `RegexpScrubber` or a `PathScrubber`.
 
-```go
-func TimeScrubber(opts ...ScrubberOption) Scrubber {
-    return golden.NewScrubber(
-       "\\d{2}:\\d{2}:\\d{2}.\\d{3}", 
-       "<Current Time>", 
-       opts...
-    )
+```php
+class MyTimeScrubber implements Scrubber
+{
+    private RegexScrubber $scrubber;
+
+    public function __construct(callable ...$options)
+    {
+        $this->scrubber = new RegexScrubber(
+            "/\\d{2}:\\d{2}:\\d{2}.\\d{3}/",
+            "<Current Time>",
+            ...$options
+        );
+    }
+
+
+    public function clean(string $subject): string
+    {
+        return $this->scrubber->clean($subject);
+    }
+
+    public function setContext(string $context)
+    {
+        $this->scrubber->setContext($context);
+    }
+
+    public function setReplacement(string $replacement)
+    {
+        $this->scrubber->setReplacement($replacement);
+    }
 }
-
-scrubber := TimeScrubber()
 ```
 
-When writing Scrubbers, you should support the `opts ...ScrubberOption` parameter as in the previous example. This will allow your Scrubber to use `ScrubberOptions`, so you can modify the replacement or the context.
+When writing Scrubbers, you should support the `callable ...$options` parameter as in the previous example. This will allow your Scrubber to use scrubber options, so you can modify the replacement or the context.
 
 This will allow you to enforce policies to scrub snapshots, introducing Scrubbers that are useful for your domain needs.
 
@@ -780,11 +800,17 @@ This will allow you to enforce policies to scrub snapshots, introducing Scrubber
 
 `CreditCard`: obfuscates credit card numbers
 
-```go
-func TestCreditCard(t *testing.T) {
-    scrubber := golden.CreditCard()
-    subject := "Credit card: 1234-5678-9012-1234"
-    assert.Equal(t, "Credit card: ****-****-****-1234", scrubber.Clean(subject))
+```php
+class CreditCardScrubberTest extends TestCase
+{
+    #[Test]
+    /** @test */
+    public function shouldObfuscateCreditCard(): void
+    {
+        $scrubber = new CreditCard();
+        $subject = "Credit card: 1234-5678-9012-1234";
+        assertEquals("Credit card: ****-****-****-1234", $scrubber->clean($subject));
+    }
 }
 ```
 
