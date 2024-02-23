@@ -17,6 +17,7 @@ final class Config
     private bool $approval;
     private string $snapshot;
     private NameExtractor $nameExtractor;
+    private array $scrubbers;
 
     public function __construct()
     {
@@ -69,4 +70,13 @@ final class Config
         return $this->nameExtractor->name($test);
     }
 
+    public function setScrubbers(array $scrubbers): void
+    {
+        $this->scrubbers = $scrubbers;
+    }
+
+    public function scrubbers(): array
+    {
+        return $this->scrubbers;
+    }
 }

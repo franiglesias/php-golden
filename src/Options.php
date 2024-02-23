@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace Golden;
 
 use Closure;
+use Golden\Normalizer\Scrubber\Scrubber;
 
 function extension(string $extension): Closure
 {
@@ -25,4 +26,10 @@ function waitApproval(): Closure
 function snapshot(string $snapshot): Closure
 {
     return fn(Config $config) => $config->setSnapshot($snapshot);
+}
+
+
+function scrubbers(Scrubber ...$scrubbers): Closure
+{
+    return fn(Config $config) => $config->setScrubbers($scrubbers);
 }

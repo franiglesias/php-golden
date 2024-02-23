@@ -694,14 +694,14 @@ You can see an example right now. In the following test, the subject has non-det
 
 In this example, the `scrubber` matches any time formatted like "15:04:05.000" and replaces it with "&lt;Current Time&gt;".
 
-```go
-func TestShouldScrubData(t *testing.T) {
-    scrubber := golden.NewScrubber("\\d{2}:\\d{2}:\\d{2}.\\d{3}", "<Current Time>")
-
-    // Here we have a non-deterministic subject
-    subject := fmt.Sprintf("Current time is: %s", time.Now().Format("15:04:05.000"))
-
-    gld.Verify(t, subject, golden.WithScrubbers(scrubber))
+```php
+#[Test]
+/** @test */
+public function shouldScrubNonDeterministicData(): void
+{
+    $scrubber = new RegexScrubber("/\\d{2}:\\d{2}:\\d{2}.\\d{3}/", "<Current Time>");
+    $subject = sprintf("Current time is: %s", (new \DateTimeImmutable())->format("H:i:s.v"));
+    $this->verify($subject, scrubbers($scrubber));
 }
 ```
 
@@ -713,15 +713,29 @@ If you are testing Json files you probably will want to scrub specific fields in
 
 The PathScrubber allows you to specify a path and replace its contents unconditionally. If the path is not found, no replacement will be performed.
 
-```go
-func TestBasicPathScrubbing(t *testing.T) {
-    scrubber := golden.NewPathScrubber("object.other.remark", "<Replacement>")
-
-    subject := `{"object":{"id":"12345", "name":"My Object", "count":1234, "validated": true, "other": {"remark": "accept"}}}`
-    result := scrubber.Clean(subject)
-    want := `{"object":{"id":"12345", "name":"My Object", "count":1234, "validated": true, "other": {"remark": "<Replacement>"}}}`
-    assert.Equal(t, want, result)
+```php
+    #[Test]
+    /** @test */
+    public function shouldReplaceInnerPath(): void
+    {
+        $subject = '{"object":{"id":"12345","name":"My Object","count":1234,"validated":true,"other":{"remark":"accept"}}}';
+        $scrubber = new PathScrubber("object.other.remark", "<Replacement>");
+        $expected = /** @lang JSON */
+            <<<'EOF'
+{
+    "object": {
+        "id": "12345",
+        "name": "My Object",
+        "count": 1234,
+        "validated": true,
+        "other": {
+            "remark": "<Replacement>"
+        }
+    }
 }
+EOF;
+        assertEquals($expected, $scrubber->clean($subject));
+    }
 ```
 
 ### Caveats
@@ -740,8 +754,8 @@ If you find that you are using many times the same regexp and replacement, consi
 
 For example, in the previous test, we used:
 
-```go
-scrubber := golden.NewScrubber("\\d{2}:\\d{2}:\\d{2}.\\d{3}", "<Current Time>")
+```php
+$scrubber = new RegexScrubber("/\\d{2}:\\d{2}:\\d{2}.\\d{3}/", "<Current Time>");
 ```
 
 You can encapsulate it in a constructor function. This way you can easily reuse it in all the tests in which it makes sense.

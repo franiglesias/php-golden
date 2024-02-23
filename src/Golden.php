@@ -10,6 +10,7 @@ use Golden\Master\Combinations;
 use Golden\Master\Runner;
 use Golden\Normalizer\JsonNormalizer;
 use Golden\Normalizer\Normalizer;
+use Golden\Normalizer\Scrubber\Scrubber;
 use Golden\Reporter\PhpUnitReporter;
 use Golden\Reporter\Reporter;
 use Golden\Storage\FileSystemStorage;
@@ -52,7 +53,7 @@ trait Golden
             $option($config);
         }
 
-        $normalized = $this->normalize($subject);
+        $normalized = $this->normalize($subject, ...$config->scrubbers());
 
         $name = $config->name($this, $this->namer);
 
@@ -72,10 +73,13 @@ trait Golden
         $this->verify($subject, ...$options);
     }
 
-    private function normalize($subject): string
+    private function normalize($subject, Scrubber ...$scrubbers): string
     {
-        // Scrubs should be applied here, after normalization
-        return $this->normalizer->normalize($subject);
+        $normalized = $this->normalizer->normalize($subject);
+        foreach ($scrubbers as $scrubber) {
+            $normalized = $scrubber->clean($normalized);
+        }
+        return $normalized;
     }
 
     private function report(string $previous, string $normalized): string
