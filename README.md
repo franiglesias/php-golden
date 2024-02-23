@@ -25,7 +25,6 @@ A PHP library for snapshot 📸 testing.
         - [Wrap the subject under test](#wrap-the-subject-under-test)
         - [Prepare lists of values for each parameter](#prepare-lists-of-values-for-each-parameter)
         - [Putting it all together](#putting-it-all-together)
-        - [Another example, managing errors:](#another-example-managing-errors)
 - [Customizing the behavior](#customizing-the-behavior)
     - [Customize the snapshot name](#customize-the-snapshot-name)
     - [Customize the folder to store the snapshot](#customize-the-folder-to-store-the-snapshot)
