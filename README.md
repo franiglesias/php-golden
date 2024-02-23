@@ -872,29 +872,24 @@ public function shouldObfuscateOnlyFieldCreditCard(): void
 
 ## How snapshots are named
 
-By default, test names are used to auto-generate the snapshot file name.
+By default, test names are used to auto-generate the snapshot file name. The name of the TestCase will be used to create a folder in which the snapshot for each test will be created. The name of this files will be the _snake_case_ version of the test name. 
 
 This test:
 
-```go
-func TestSomething (t *testing.T) {
-    //...
+```php
+final class NonDeterministicTest extends TestCase
+{
+    #[Test]
+    /** @test */
+    public function shouldScrubNonDeterministicData(): void
+    {
+        // ...
+    }
 }
 ```
 
-Will generate the snapshot: `__snapshots/TestSomething.snap`
+Will generate the snapshot: `__snapshots/NonDeterministicTest/should_scrub_non_deterministic_data.snap`
 
-Inner tests with `t.Run` will work this way. The Test:
-
-```go
-func TestSomething (t *testing.T) {
-    t.Run("should do something", func(t *testing.T) {
-       //...
-    })
-}
-```
-
-Will generate the snapshot: `__snapshots/TestSomething/should_do_something.snap`
 
 You can customize the snapshot file name by passing the option `snapshot("new_snapshot_name")`. You must do this if you want to have two or more different snapshots in the same test. The first one could use the default name, but the subsequents will reuse it. You can also use this feature for making different tests use the same snapshot.
 
