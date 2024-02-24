@@ -11,14 +11,14 @@ use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use Tests\Golden\Helpers\ExampleTest;
 use Tests\Golden\Helpers\SnapshotAssertions;
+use function Golden\extension;
+use function Golden\folder;
 use function Golden\snapshot;
 
 
 final class VerifyTest extends TestCase
 {
     use SnapshotAssertions;
-
-    const EXPECTED_SNAPSHOT_PATH = "tests/Helpers/__snapshots/ExampleTest/example_test.snap";
 
     protected Storage $storage;
     private ExampleTest $testCase;
@@ -29,15 +29,16 @@ final class VerifyTest extends TestCase
         $this->storage = new MemoryStorage();
         $this->testCase = new ExampleTest("ExampleTest");
         $this->testCase->registerStorage($this->storage);
-        $this->expectedPath = getcwd() . DIRECTORY_SEPARATOR . self::EXPECTED_SNAPSHOT_PATH;
+        $this->expectedPath = $this->absolute("tests/Helpers/__snapshots/ExampleTest/example_test.snap");
     }
+
 
     #[Test]
     /** @test */
     public function shouldPass(): void
     {
         $this->testCase->verify("This is the subject");
-        $this->assertSnapshotWasCreated($this->expectedPath);
+        $this->assertSnapshotWasCreated($this->absolute("tests/Helpers/__snapshots/ExampleTest/example_test.snap"));
     }
 
     #[Test]
@@ -56,10 +57,29 @@ final class VerifyTest extends TestCase
     {
         $this->testCase->verify("This is the subject", snapshot('my_snapshot'));
 
-        $expectedPath = str_replace("example_test", "my_snapshot", $this->expectedPath);
-
-        $this->assertSnapshotWasCreated($expectedPath);
+        $this->assertSnapshotWasCreated($this->absolute("tests/Helpers/__snapshots/ExampleTest/my_snapshot.snap"));
     }
 
+    #[Test]
+    /** @test */
+    public function shouldChangeFolderName(): void
+    {
+        $this->testCase->verify("This is the subject", folder('__my_folder'));
 
+        $this->assertSnapshotWasCreated($this->absolute("tests/Helpers/__my_folder/ExampleTest/example_test.snap"));
+    }
+
+    #[Test]
+    /** @test */
+    public function shouldChangeExtension(): void
+    {
+        $this->testCase->verify("This is the subject", extension('.tdata'));
+
+        $this->assertSnapshotWasCreated($this->absolute("tests/Helpers/__snapshots/ExampleTest/example_test.tdata"));
+    }
+
+    private function absolute(string $relative): string
+    {
+        return getcwd() . DIRECTORY_SEPARATOR . $relative;
+    }
 }

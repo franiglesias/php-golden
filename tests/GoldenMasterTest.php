@@ -16,17 +16,15 @@ final class GoldenMasterTest extends TestCase
 {
     use SnapshotAssertions;
 
-    const EXPECTED_SNAPSHOT_PATH = "tests/Helpers/__snapshots/ExampleTest/example_test.snap.json";
-
     protected Storage $storage;
     private ExampleTest $testCase;
+
 
     protected function setUp(): void
     {
         $this->storage = new MemoryStorage();
         $this->testCase = new ExampleTest("ExampleTest");
         $this->testCase->registerStorage($this->storage);
-        $this->expectedPath = getcwd() . DIRECTORY_SEPARATOR . self::EXPECTED_SNAPSHOT_PATH;
     }
 
     #[Test]
@@ -40,12 +38,12 @@ final class GoldenMasterTest extends TestCase
         $collection = ["one", "two", "three"];
 
         $this->testCase->master($sut, Combinations::of($collection));
-        $this->assertSnapshotWasCreated($this->expectedPath);
+        $this->assertSnapshotWasCreated($this->absolute("tests/Helpers/__snapshots/ExampleTest/example_test.snap.json"));
     }
 
     #[Test]
     /** @test */
-    public function shouldRunAllTestForSeveralParameter(): void
+    public function shouldRunAllTestForSeveralParameters(): void
     {
         $sut = function (...$param) {
             $number = strtoupper($param[0]);
@@ -61,6 +59,11 @@ final class GoldenMasterTest extends TestCase
         $shapes = ["square", "circle"];
 
         $this->testCase->master($sut, Combinations::of($numbers, $animals, $colors, $shapes));
-        $this->assertSnapshotWasCreated($this->expectedPath);
+        $this->assertSnapshotWasCreated($this->absolute("tests/Helpers/__snapshots/ExampleTest/example_test.snap.json"));
+    }
+
+    public function absolute(string $relative): string
+    {
+        return getcwd() . DIRECTORY_SEPARATOR . $relative;
     }
 }

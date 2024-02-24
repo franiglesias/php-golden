@@ -4,12 +4,14 @@ declare (strict_types=1);
 
 namespace Tests\Golden\Helpers;
 
+use function PHPUnit\Framework\assertEquals;
+
 trait SnapshotAssertions
 {
     public function assertSnapshotContains(string $name, string $content): void
     {
         $snapshot = $this->storage->retrieve($name);
-        self::assertEquals($content, $snapshot);
+        assertEquals($content, $snapshot);
     }
 
     public function assertSnapshotWasCreated(string $name): void
@@ -19,6 +21,6 @@ trait SnapshotAssertions
 
     public function absolutePath(string $name): string
     {
-        return getcwd() . DIRECTORY_SEPARATOR . $name;
+        return $this->absolute($name);
     }
 }
