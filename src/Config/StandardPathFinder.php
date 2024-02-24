@@ -9,9 +9,9 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /*
- * StandardNamer is a Namer implementation that builds snapshot names
- * so they are stored in the same path as the test they are serving.
- * This allows users to locate test data easily.
+ * StandardPathFinder is a PathFinder implementation that make a guess
+ * about the path in which the TestCase file is located. This way, snapshots will
+ * be located along the tests
  *
  * */
 

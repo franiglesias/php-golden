@@ -23,14 +23,4 @@ final class CreditCard implements Scrubber
     {
         return $this->scrubber->clean($subject);
     }
-
-    public function setContext(string $context)
-    {
-        $this->scrubber->setContext($context);
-    }
-
-    public function setReplacement(string $replacement)
-    {
-        $this->scrubber->setReplacement($replacement);
-    }
 }

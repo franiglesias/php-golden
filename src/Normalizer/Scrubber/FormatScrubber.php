@@ -4,7 +4,7 @@ declare (strict_types=1);
 
 namespace Golden\Normalizer\Scrubber;
 
-interface Scrubber
+interface FormatScrubber
 {
-    public function clean(string $subject): string;
+    public function setContext(string $context);
 }

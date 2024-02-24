@@ -16,6 +16,7 @@ use Golden\Reporter\Reporter;
 use Golden\Storage\FileSystemStorage;
 use Golden\Storage\Storage;
 use PHPUnit\Framework\TestCase;
+use function PHPUnit\Framework\assertEquals;
 
 
 trait Golden
@@ -111,7 +112,7 @@ trait Golden
         $snapshot = $this->storage->retrieve($name);
 
         /* @var $this TestCase|Golden */
-        $this->assertEquals($snapshot, $normalized);
+        assertEquals($snapshot, $normalized);
     }
 }
 

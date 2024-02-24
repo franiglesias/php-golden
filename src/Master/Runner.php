@@ -19,9 +19,9 @@ final class Runner
     public function execute(array $scenarios): array
     {
         $subject = [];
-        foreach ($scenarios as $key => $scenario) {
+        foreach ($scenarios as $scenarioID => $scenario) {
             $subject[] = new Test(
-                $key + 1,
+                $scenarioID + 1,
                 $scenario,
                 ($this->sut)(...$scenario)
             );

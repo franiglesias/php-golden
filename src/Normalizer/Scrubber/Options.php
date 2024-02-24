@@ -5,10 +5,10 @@ namespace Golden\Normalizer\Scrubber;
 
 function format(string $format): \Closure
 {
-    return fn(Scrubber $scrubber) => $scrubber->setContext($format);
+    return fn(FormatScrubber $scrubber) => $scrubber->setContext($format);
 }
 
 function replacement(string $replacement): \Closure
 {
-    return fn(Scrubber $scrubber) => $scrubber->setReplacement($replacement);
+    return fn(CustomizableScrubber $scrubber) => $scrubber->setReplacement($replacement);
 }

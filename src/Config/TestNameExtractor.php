@@ -7,7 +7,7 @@ namespace Golden\Config;
 
 use PHPUnit\Framework\TestCase;
 
-final class NameExtractor
+final class TestNameExtractor
 {
 
     public function name(TestCase $test): string

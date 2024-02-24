@@ -8,7 +8,7 @@ namespace Golden\Normalizer\Scrubber;
 use JsonPath\InvalidJsonException;
 use JsonPath\JsonObject;
 
-final class PathScrubber implements Scrubber
+final class PathScrubber implements Scrubber, CustomizableScrubber
 {
     private string $path;
     private string $replacement;
@@ -31,11 +31,6 @@ final class PathScrubber implements Scrubber
         }
         $jsonObject->{'$.' . $this->path} = $this->replacement;
         return $jsonObject->getJson(JSON_PRETTY_PRINT);
-    }
-
-    public function setContext(string $context)
-    {
-        throw new \RuntimeException('Implement setContext() method.');
     }
 
     public function setReplacement(string $replacement)

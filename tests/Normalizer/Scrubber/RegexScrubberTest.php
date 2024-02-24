@@ -5,6 +5,7 @@ declare (strict_types=1);
 namespace Tests\Golden\Normalizer\Scrubber;
 
 use Golden\Normalizer\Scrubber\RegexScrubber;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use function Golden\Normalizer\Scrubber\format;
 use function Golden\Normalizer\Scrubber\replacement;
@@ -21,6 +22,16 @@ final class RegexScrubberTest extends TestCase
         $scrubber = new RegexScrubber('/\d{2}-\d{2}-\d{2}/', '24-01-15');
         assertEquals($subject, $scrubber->clean($subject));
     }
+
+    #[Test]
+    /** @test */
+    public function shouldNotReplaceAnythingIfBadRegexp(): void
+    {
+        $subject = "A string containing a date 23-04-12";
+        $scrubber = new RegexScrubber('\d{2}-\d{2}-\d{2}', '24-01-15');
+        assertEquals($subject, $scrubber->clean($subject));
+    }
+
 
     #[Test]
     /** @test */

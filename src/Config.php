@@ -5,8 +5,8 @@ declare (strict_types=1);
 namespace Golden;
 
 
-use Golden\Config\NameExtractor;
 use Golden\Config\PathFinder;
+use Golden\Config\TestNameExtractor;
 use PHPUnit\Framework\TestCase;
 
 final class Config
@@ -16,7 +16,7 @@ final class Config
     private string $extension;
     private bool $approval;
     private string $snapshot;
-    private NameExtractor $nameExtractor;
+    private TestNameExtractor $nameExtractor;
     private array $scrubbers;
 
     public function __construct()
@@ -25,7 +25,7 @@ final class Config
         $this->extension = ".snap";
         $this->approval = false;
         $this->snapshot = '';
-        $this->nameExtractor = new NameExtractor();
+        $this->nameExtractor = new TestNameExtractor();
         $this->scrubbers = [];
     }
 

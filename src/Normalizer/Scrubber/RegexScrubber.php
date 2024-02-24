@@ -5,7 +5,7 @@ declare (strict_types=1);
 namespace Golden\Normalizer\Scrubber;
 
 
-final class RegexScrubber implements Scrubber
+final class RegexScrubber implements Scrubber, CustomizableScrubber, FormatScrubber
 {
 
     private string $regexp;
