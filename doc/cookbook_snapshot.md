@@ -8,7 +8,7 @@ I want to put under test a piece of legacy code before refactoring it. I don't k
 
 ## Preparation
 
-Install the library if you have not done so before.
+Install the library if you have not done so before. I have to make a `composer update` first in this project to run it under php 8.3.
 
 ```shell
 composer require --dev franiglesias/golden
@@ -18,99 +18,155 @@ composer require --dev franiglesias/golden
 
 For this example, I'm going to use the go version of Theatrical Play Kata, from Emily Bache. The exercise is about refactoring a piece of code that prints an invoice. The unit returns the printed statement as a plain text.
 
-The actual exercise provides several tests, but we are going to work as if we don't have any test at all. So, delete all tests leaving only the `StatementPrinter.go` and `types.go` files. This recipe will show you how to use **Golden** to generate a simple snapshot test that captures the output. This will be a pretty good starting point when we know nothing about the code.
+The actual exercise provides several tests, but we are going to work as if we don't have any test at all. So, delete all tests and leave untouched the `src` folder. This recipe will show you how to use **Golden** to generate a simple snapshot test that captures the output. This will be a pretty good starting point when we know nothing about the code.
 
 This is the code we want to put under test.
 
-```go
-type StatementPrinter struct{}
+```php
+class StatementPrinter
+{
+    public function print(Invoice $invoice, array $plays): string
+    {
+        $totalAmount = 0;
+        $volumeCredits = 0;
 
-func (StatementPrinter) Print(invoice Invoice, plays map[string]Play) (string, error) {
-	totalAmount := 0
-	volumeCredits := 0
-	result := fmt.Sprintf("Statement for %s\n", invoice.Customer)
+        $result = "Statement for {$invoice->customer}\n";
+        $format = new NumberFormatter('en_US', NumberFormatter::CURRENCY);
 
-	ac := accounting.Accounting{Symbol: "$", Precision: 2}
+        foreach ($invoice->performances as $performance) {
+            $play = $plays[$performance->play_id];
+            $thisAmount = 0;
 
-	for _, perf := range invoice.Performances {
-		play := plays[perf.PlayID]
-		thisAmount := 0
+            switch ($play->type) {
+                case 'tragedy':
+                    $thisAmount = 40000;
+                    if ($performance->audience > 30) {
+                        $thisAmount += 1000 * ($performance->audience - 30);
+                    }
+                    break;
 
-		switch play.Type {
-		case "tragedy":
-			thisAmount = 40000
-			if perf.Audience > 30 {
-				thisAmount += 1000 * (perf.Audience - 30)
-			}
-		case "comedy":
-			thisAmount = 30000
-			if perf.Audience > 20 {
-				thisAmount += 10000 + 500*(perf.Audience-20)
-			}
-			thisAmount += 300 * perf.Audience
-		default:
-			return "", fmt.Errorf("unknown type: %s", play.Type)
-		}
+                case 'comedy':
+                    $thisAmount = 30000;
+                    if ($performance->audience > 20) {
+                        $thisAmount += 10000 + 500 * ($performance->audience - 20);
+                    }
+                    $thisAmount += 300 * $performance->audience;
+                    break;
 
-		// add volume credits
-		volumeCredits += int(math.Max(float64(perf.Audience)-30, 0))
-		// add extra credit for every ten comedy attendees
-		if play.Type == "comedy" {
-			volumeCredits += int(math.Floor(float64(perf.Audience) / 5))
-		}
+                default:
+                    throw new Error("Unknown type: {$play->type}");
+            }
 
-		// print line for this order
-		result += fmt.Sprintf("  %s: %s (%d seats)\n", play.Name, ac.FormatMoney(float64(thisAmount)/100), perf.Audience)
-		totalAmount += thisAmount
-	}
-	result += fmt.Sprintf("Amount owed is %s\n", ac.FormatMoney(float64(totalAmount)/100))
-	result += fmt.Sprintf("You earned %d credits\n", volumeCredits)
-	return result, nil
+            // add volume credits
+            $volumeCredits += max($performance->audience - 30, 0);
+            // add extra credit for every ten comedy attendees
+            if ($play->type === 'comedy') {
+                $volumeCredits += floor($performance->audience / 5);
+            }
+
+            // print line for this order
+            $result .= "  {$play->name}: {$format->formatCurrency($thisAmount / 100, 'USD')} ";
+            $result .= "({$performance->audience} seats)\n";
+
+            $totalAmount += $thisAmount;
+        }
+
+        $result .= "Amount owed is {$format ->formatCurrency($totalAmount / 100, 'USD')}\n";
+        $result .= "You earned {$volumeCredits} credits";
+        return $result;
+    }
 }
+
 ```
 
 And these are the data types:
 
-```go
-type Performance struct {
-	PlayID   string
-	Audience int
+```php
+class Invoice
+{
+    /**
+     * @var string
+     */
+    public $customer;
+
+    /**
+     * @var array
+     */
+    public $performances;
+
+    public function __construct(string $customer, array $performances)
+    {
+        $this->customer = $customer;
+        $this->performances = $performances;
+    }
 }
 
-type Play struct {
-	Name string
-	Type string
+class Performance
+{
+    /**
+     * @var string
+     */
+    public $play_id;
+
+    /**
+     * @var int
+     */
+    public $audience;
+
+    /**
+     * @var Play
+     */
+    public $play;
+
+    public function __construct(string $play_id, int $audience)
+    {
+        $this->play_id = $play_id;
+        $this->audience = $audience;
+    }
 }
 
-type Invoice struct {
-	Customer     string
-	Performances []Performance
+
+class Play
+{
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var string
+     */
+    public $type;
+
+    public function __construct(string $name, string $type)
+    {
+        $this->name = $name;
+        $this->type = $type;
+    }
+
+    public function __toString()
+    {
+        return (string) $this->name . ' : ' . $this->type;
+    }
 }
 ```
 
 First, let's study the signature:
 
-```go
-func (StatementPrinter) Print(invoice Invoice, plays map[string]Play) (string, error) 
-```
-
-We need to pass a populated `Invoice` struct and a map of `Play`, which keys as simple strings. The method will produce a `string` with the output and an `error`.
-
-## First test
-
-We are going to create the first test in the `theatre` package. I'm naming it `golden_statement_printer_test.go`. At this point, I only want to be sure that I can set up a test that can run.
-
-```go
-package theatre_test
-
-import "testing"
-
-func TestBasicStatementPrinter(t *testing.T) {
-	
+```php
+class StatementPrinter
+{
+    public function print(Invoice $invoice, array $plays): string
+    {
+    }
 }
 ```
 
-We want to have something like this. No data yet:
+We need to pass a populated `Invoice` object and an associative array of `Play`, which keys as simple strings. The method will produce a `string` with the output.
+
+## First test
+
+We are going to create the first test in the `tests` folder. I'm naming it `GoldenStatementPrinterTest.php`. At this point, I only want to be sure that I can set up a test that can run. We want to have something like this. No data yet:
 
 ```go
 func TestBasicStatementPrinter(t *testing.T) {
@@ -130,10 +186,34 @@ func TestBasicStatementPrinter(t *testing.T) {
 }
 ```
 
+
+```php
+final class GoldenStatementPrinterTest extends TestCase
+{
+    use Golden;
+    #[Test]
+    /** @test */
+    public function shouldPrintEmptyStatement(): void
+    {
+        $printer = new StatementPrinter();
+        
+        // Prepare data needed
+        $invoice = new Invoice("Smith Ltd.", []);
+        $plays = [];
+
+        // Execute the method and obtain the result
+        $statement = $printer->print($invoice, $plays);
+
+        // Verify creating an snapshot
+        $this->verify($statement);
+    }
+}
+```
+
 This test works. In fact, it captures the following output in the file `theatre/testdata/TestBasicStatementPrinter.snap`:
 
 ```
-Statement for 
+Statement for Smith Ltd.
 Amount owed is $0.00
 You earned 0 credits
 ```
@@ -142,20 +222,73 @@ That was great. The test executes the code without errors. It is not useful to p
 
 Of course, we will need to pass some data. So, let's take a look at the structs Invoice, Play and Performance, again:
 
-```go
-type Performance struct {
-	PlayID   string
-	Audience int
+```php
+class Invoice
+{
+    /**
+     * @var string
+     */
+    public $customer;
+
+    /**
+     * @var array
+     */
+    public $performances;
+
+    public function __construct(string $customer, array $performances)
+    {
+        $this->customer = $customer;
+        $this->performances = $performances;
+    }
 }
 
-type Play struct {
-	Name string
-	Type string
+class Performance
+{
+    /**
+     * @var string
+     */
+    public $play_id;
+
+    /**
+     * @var int
+     */
+    public $audience;
+
+    /**
+     * @var Play
+     */
+    public $play;
+
+    public function __construct(string $play_id, int $audience)
+    {
+        $this->play_id = $play_id;
+        $this->audience = $audience;
+    }
 }
 
-type Invoice struct {
-	Customer     string
-	Performances []Performance
+
+class Play
+{
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var string
+     */
+    public $type;
+
+    public function __construct(string $name, string $type)
+    {
+        $this->name = $name;
+        $this->type = $type;
+    }
+
+    public function __toString()
+    {
+        return (string) $this->name . ' : ' . $this->type;
+    }
 }
 ```
 
@@ -163,41 +296,42 @@ Invoice takes a `Customer` string and a slice of `Performances`. Each `Performan
 
 Now, let's look at code. `Customer` is a value that is printed directly in the statement. Not so much mystery here.
 
-```go
-result := fmt.Sprintf("Statement for %s\n", invoice.Customer)
+```php
+$result = "Statement for {$invoice->customer}\n";
 ```
 
 It seems that `Performance` holds a reference to a `Play`, but it sounds strange that the name of the property in `Performance` is `PlayID`, because there is no `Id` property in `Play`. Maybe the `PlayID` is its `Name`, maybe is simply an index. In fact, code says this: 
 
-```go
-    play := plays[perf.PlayID]
+```php
+$play = $plays[$performance->play_id];
 ```
 
 So, `PlayID` could be anything, a number, or a name, provided that it acts as an identifier for a unique `Play`.
 
 On the other hand, `Audience` is an `int` and it probably means the number of people who attended the `Performance`, so it should be important to compute the amount owed. We can several important values of `Audience` in the conditionals that decide different execution paths:
 
-```go
-if perf.Audience > 30 {
-    thisAmount += 1000 * (perf.Audience - 30)
+```php
+if ($performance->audience > 30) {
+    $thisAmount += 1000 * ($performance->audience - 30);
 }
 ```
 
 There is a mention in the previous snapshot to "credits", but we cannot see anything related in the data structures, so it is something computed by the code. Also, we can see that there are some important values for `Audience`. For example, audiences greater than 30 generate credits, and extra credits are added for every five (ten?) comedy attendees. This means that the `Type` of `Play` is important. 
 
-```go
+
+```php
 // add volume credits
-volumeCredits += int(math.Max(float64(perf.Audience)-30, 0))
+$volumeCredits += max($performance->audience - 30, 0);
 // add extra credit for every ten comedy attendees
-if play.Type == "comedy" {
-    volumeCredits += int(math.Floor(float64(perf.Audience) / 5))
+if ($play->type === 'comedy') {
+    $volumeCredits += floor($performance->audience / 5);
 }
 ```
 
 So, in order to create sample data for the test, we need to take into account:
 
 * `Customer` is a string that has no influence on behavior.
-* `Performance.Audience` has two interesting value points: 20 and 30, depending on the `Type` of the `Play`, because those limits change the behavior when calculating amounts.
+* `Performance->audience` has two interesting value points: 20 and 30, depending on the `Type` of the `Play`, because those limits change the behavior when calculating amounts.
 * `Type` of `Play` is very important, and we manage both "comedy" and "tragedy".
 
 So, we will need:
@@ -217,58 +351,32 @@ will decide the test conditions according to the critical values that we've foun
 
 Now, we create the input data based on the analysis we've just performed.
 
-```go
-func TestPrintStatementForInvoice(t *testing.T) {
-	plays := make(map[string]theatre.Play)
+```php
+#[Test]
+/** @test */
+public function shouldPrintCompleteStatement(): void
+{
+    $printer = new StatementPrinter();
+    
+    $plays = [
+        "hamlet" => new Play("Hamlet", "tragedy"),
+        "as-you-like" => new Play("As You Like", "comedy"),
+    ];
 
-	plays = map[string]theatre.Play{
-		"hamlet": {
-			Name: "Hamlet",
-			Type: "tragedy",
-		},
-		"as-you-like": {
-			Name: "As You Like",
-			Type: "comedy",
-		},
-	}
-	
-	invoice := theatre.Invoice{
-		Customer: "Smith Ltd.",
-		Performances: []theatre.Performance{
-			{
-				PlayID:   "hamlet",
-				Audience: 25,
-			},
-			{
-				PlayID:   "hamlet",
-				Audience: 30,
-			},
-			{
-				PlayID:   "hamlet",
-				Audience: 35,
-			},
-			{
-				PlayID:   "as-you-like",
-				Audience: 15,
-			},
-			{
-				PlayID:   "as-you-like",
-				Audience: 25,
-			},
-			{
-				PlayID:   "as-you-like",
-				Audience: 25,
-			},
-		},
-	}
-	
-	printer := theatre.StatementPrinter{}
+    $performances = [
+        new Performance("hamlet", 25),
+        new Performance("hamlet", 30),
+        new Performance("hamlet", 35),
+        new Performance("as-you-like", 15),
+        new Performance("as-you-like", 20),
+        new Performance("as-you-like", 25),
+    ];
 
-	statement, err := printer.Print(invoice, plays)
-	if err != nil {
-		t.Fatalf("error: %s", err.Error())
-	}
-	golden.Verify(t, statement, golden.Folder("testdata"))
+    $invoice = new Invoice("Smith Ltd.", $performances);
+
+    $statement = $printer->print($invoice, $plays);
+
+    $this->verify($statement);
 }
 ```
 
@@ -279,11 +387,11 @@ Statement for Smith Ltd.
   Hamlet: $400.00 (25 seats)
   Hamlet: $400.00 (30 seats)
   Hamlet: $450.00 (35 seats)
-  As You Like: $345.00 (15 seats)
-  As You Like: $500.00 (25 seats)
-  As You Like: $500.00 (25 seats)
-Amount owed is $2,595.00
-You earned 18 credits
+  As you like: $345.00 (15 seats)
+  As you like: $360.00 (20 seats)
+  As you like: $500.00 (25 seats)
+Amount owed is $2,455.00
+You earned 17 credits
 ```
 
 The test provides 95.8% coverage. The only execution path that doesn't run is the case in which the Play Type is unknown. This looks as a pretty good test to start.
