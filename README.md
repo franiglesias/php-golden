@@ -16,6 +16,8 @@ A PHP library for snapshot 📸 testing.
         - [How it works](#how-it-works-1)
     - [🏆 Basic Usage: Golden Master mode](#basic-usage-golden-master-mode)
         - [How it works](#how-it-works-2)
+- [Known limitations](#known-limitations)
+    - [Inaccurate Path Coverage in Combinatorial tests](#inaccurate-path-coverage-in-combinatorial-tests)
 - [What is Golden?](#what-is-golden)
 - [Snapshot testing](#snapshot-testing)
 - [Approval testing](#approval-testing)
@@ -253,6 +255,13 @@ The first time you run the test, a snapshot file will be generated at `__snapsho
 ```
 
 As a bonus, you can use GoldenMaster tests in Approval mode. In fact, you can pass all the common options.
+
+
+## Known limitations
+
+### Inaccurate Path Coverage in Combinatorial tests
+
+Given the way in which Golden creates and executes the combinatorial tests, if you try to use Path Coverage you will see that only one hit per line is showed in coverage reports.
 
 ## What is Golden?
 
