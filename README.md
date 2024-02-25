@@ -6,7 +6,7 @@ A PHP library for snapshot 📸 testing.
 
 **⚠️️ Caution ⚠️**: This README is a Work in Progress. We are translating the original readme from Golden to the PHP version. Maybe, we have some typos or references to the Go version. 
 
-[Cookbook: recipes and how-tos](doc/cookbook.md) (Not yet) ⛔️
+[Cookbook: recipes and how-tos](doc/cookbook.md) (WIP) 🚧
 
 - [TL;DR](#TLDR)
     - [🛠 Installation](#installation)
