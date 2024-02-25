@@ -20,7 +20,7 @@ final class Runner
     {
         $subject = [];
         foreach ($scenarios as $scenarioID => $scenario) {
-            $subject[] = new Test(
+            $subject[] = new GMTest(
                 $scenarioID + 1,
                 $scenario,
                 ($this->sut)(...$scenario)

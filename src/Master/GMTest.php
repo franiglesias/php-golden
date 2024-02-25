@@ -7,7 +7,7 @@ namespace Golden\Master;
 
 use JsonSerializable;
 
-final class Test implements JsonSerializable
+final class GMTest implements JsonSerializable
 {
 
     private int $id;
