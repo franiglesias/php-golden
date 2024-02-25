@@ -86,4 +86,13 @@ EOD;
         $expected = json_encode(json_decode($subject, true), JSON_PRETTY_PRINT);
         assertEquals($expected, $normalize);
     }
+
+    #[Test]
+    /** @test */
+    public function shouldNormalizeStringWithNewLines(): void
+    {
+        $subject = "Statement for Smith Ltd.\nAmount owed is $0.00\nYou earned 0 credits";
+        $normalized = $this->normalizer->normalize($subject);
+        assertEquals($subject, $normalized);
+    }
 }

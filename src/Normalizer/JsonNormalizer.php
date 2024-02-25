@@ -11,8 +11,7 @@ final class JsonNormalizer implements Normalizer
     public function normalize($subject): string
     {
         $prepared = $this->prepare($subject);
-
-        $normalized = json_encode($prepared, JSON_PRETTY_PRINT);
+        $normalized = $this->jsonEncodeIfNeeded($prepared);
         return trim($normalized, '" ' . "\r");
     }
 
@@ -33,7 +32,7 @@ final class JsonNormalizer implements Normalizer
      * As a nice side-effect, the json string will be prettified, so the
      * snapshot will be more readable.
      */
-    public function decodeIfAlreadyJSON(string $subject)
+    private function decodeIfAlreadyJSON(string $subject)
     {
         $tmp = json_decode($subject, true);
         if (is_array($tmp) && json_last_error() == JSON_ERROR_NONE) {
@@ -41,5 +40,20 @@ final class JsonNormalizer implements Normalizer
         }
 
         return $subject;
+    }
+
+    /**
+     * At this point, if prepared is a string we can return it to avoid
+     * undesired changes.
+     *
+     * If not, we can encode as a JSON and return that.
+     */
+    private function jsonEncodeIfNeeded($prepared): string
+    {
+        if (is_string($prepared)) {
+            return $prepared;
+        }
+
+        return json_encode($prepared, JSON_PRETTY_PRINT);
     }
 }
