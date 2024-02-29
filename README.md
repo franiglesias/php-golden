@@ -31,6 +31,7 @@ A PHP library for snapshot 📸 testing.
     - [Customize the snapshot name](#customize-the-snapshot-name)
     - [Customize the folder to store the snapshot](#customize-the-folder-to-store-the-snapshot)
     - [Customize the extension of the snapshot file](#customize-the-extension-of-the-snapshot-file)
+    - [Set your own defaults](#set-your-own-defaults)
 - [Dealing with Non-Deterministic output](#dealing-with-non-deterministic-output)
     - [Replacing fields in Json Files with PathScrubbers](#replacing-fields-in-json-files-with-pathscrubbers)
     - [Caveats](#caveats)
@@ -634,7 +635,7 @@ This is useful if you need:
 
 ### Customize the folder to store the snapshot
 
-You can customize the snapshot name, by passing the option `folder()`:
+You can customize the snapshot folder, by passing the option `folder()`:
 
 ```php
 class ParrotTest extends TestCase
@@ -689,6 +690,83 @@ class ParrotTest extends TestCase
 This will generate the snapshot in `__snapshots/ParrotTest/test_speed_of_european_parrot.data` in the same package of the test.
 
 This option is useful if your snapshot can be files of a certain type, like CSV, JSON, HTML, or similar. Most of IDE will automatically apply syntax coloring and other goodies to inspect those files based on extension. Also, opening them in specific applications or passing them around to use as examples will be easier with the right extension.
+
+### Set your own defaults
+
+**Folder.** You can customize a **default snapshots folder**, by passing the option `folder()` to `defaults()`:
+
+
+```php
+class ParrotTest extends TestCase
+{
+    use Golden;
+    
+    protected function setUp(): void
+    {
+        $this->defaults(folder("__parrots"));
+    }
+    
+    public function testSpeedOfEuropeanParrot(): void
+    {
+        
+        $parrot = $this->getParrot(ParrotTypeEnum::EUROPEAN, 0, 0, false);
+        $this->verify($parrot->getSpeed());
+    }
+}
+```
+
+This will generate all the snapshots of the TestCase into the  `__parrots/` folder in the same folder as the test.
+
+**Extension.** You can customize the **default snapshot extension**, by passing `extension()` to `defaults()`:
+
+```php
+class ParrotTest extends TestCase
+{
+    use Golden;
+    
+    protected function setUp(): void
+    {
+        $this->defaults(extension(".json"));
+    }
+    
+    public function testSpeedOfEuropeanParrot(): void
+    {
+        
+        $parrot = $this->getParrot(ParrotTypeEnum::EUROPEAN, 0, 0, false);
+        $this->verify($parrot->getSpeed());
+    }
+}
+```
+
+This will generate all the snapshots in the TestCase with the `.json` extension.
+
+**Scoping Defaults.** You can scope the `defaults` for a whole `TestCase` by adding a call to `$this->defaults(extension(".json"));` in the `setUp`.
+
+If you want to set the defaults for several test cases at once (or even to all test cases), the best option seems to create a class that extends from TestCase and include the call in the `setUp` method. Remember that all of your test cases must extend the newly created TestCase and the setup must call its parent as shown here:
+
+```php
+abstract class JsonTestCase extends TestCase
+{
+    use Golden;
+    
+    protected function setUp(): void
+    {
+        $this->defaults(extension(".json"));
+    }
+}
+```
+
+```php
+final class MyTestCase extends TestCase
+{
+    use Golden;
+    
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+}
+```
 
 ## Dealing with Non-Deterministic output
 

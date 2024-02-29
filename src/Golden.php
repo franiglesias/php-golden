@@ -34,7 +34,9 @@ trait Golden
             $this->registerStorage(new FileSystemStorage());
         }
         $this->normalizer = new JsonNormalizer();
-        $this->config = new Config();
+        if (!isset($this->config)) {
+            $this->config = new Config();
+        }
         $this->namer = new StandardPathFinder();
         $this->reporter = new PhpUnitReporter();
     }
@@ -48,7 +50,7 @@ trait Golden
     {
         $this->init();
 
-        $config = $this->config;
+        $config = clone($this->config);
 
         foreach ($options as $option) {
             $option($config);
@@ -72,6 +74,17 @@ trait Golden
         $options[] = extension(".snap.json");
 
         $this->verify($subject, ...$options);
+    }
+
+    public function defaults(callable ...$options)
+    {
+        $this->init();
+
+        foreach ($options as $option) {
+            $option($this->config);
+        }
+
+        $this->config->setSnapshot("");
     }
 
     private function normalize($subject, Scrubber ...$scrubbers): string
