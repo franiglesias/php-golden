@@ -43,6 +43,8 @@
   },
   "scripts": {
     "post-install-cmd": "\"bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
-    "post-update-cmd" : "\"bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility"
+    "post-update-cmd" : "\"bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
+    "check-7.4": "bin/phpcs -p ./tests --standard=PHPCompatibility --runtime-set testVersion 7.4",
+    "check-8.3": "bin/phpcs -p ./tests --standard=PHPCompatibility --runtime-set testVersion 8.3"
   }
 }
