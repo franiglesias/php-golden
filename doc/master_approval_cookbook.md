@@ -6,6 +6,10 @@ In this recipe we will learn how to use Golden to use the Golden Master techniqu
 
 The problem is representative of a common situation. We have an important piece of code that we are afraid to touch because it applies a lot of business rules. We have to add new rules and business objects, but we don't know how to do it because of the complexity. To make things worse we don't have tests to try to refactor it. 
 
+## The example
+
+The code exercise we are going to use for this recipe is the [Gilded Rose Refactoring](https://github.com/emilybache/GildedRose-Refactoring-Kata) kata, using the version published by Emily Bache. This version uses the approvals test library, so we are going to remove it and use **php-golden** instead.
+
 ## Preparation
 
 Install the library if you have not done so before.
@@ -14,11 +18,15 @@ Install the library if you have not done so before.
 composer require --dev franiglesias/golden
 ```
 
+Don't forget to execute the installer to get all the dependencies.
+
+```shell
+composer install
+```
+
 At the time of writing the current version is v0.1.0. You probably will be using v1.*, but we will not have significant API changes.
 
-## The example
-
-The code exercise we are going to use for this recipe is the Gilded Rose Refactoring kata, using the version published by Emily Bache. This version uses the approval test library, so we are going to remove it and use **php-golden** instead.
+## Examining the challenge
 
 The project comes with a test as starting point:
 
@@ -35,7 +43,7 @@ class GildedRoseTest extends TestCase
 }
 ```
 
-If you run it, you will see that it fails. It's on purpose, to make sure that you can run the tests, and to help you understand how the thing is tested. YOu can fix it if you want.
+If you run it, you will see that it fails. It's on purpose, to make sure that you can run the tests, and to help you understand how the thing is tested. You can fix it if you want.
 
 I don't want to show you the code of the GildedRose class right now. Let's see what we can guess from the test.
 
@@ -239,9 +247,9 @@ class GildedRoseTest extends TestCase
 }
 ```
 
-I will explain what we have in the last line. We `invoke` the master method. `master`:
+I will explain what we have in the last line. We invoke the `master` method. This is what `master` does:
 
-* Takes a function in the variable `$sut` that exercises the subject under test.
+* It takes a function in the variable `$sut` that exercises the subject under test.
 * `Combinations::of` will generate the combinations of the values passed in the variables `$types`, `$sellIns` and `$qualities`, that will be arrays with possible values for each of the Item properties.
 * `waitApproval()` will run the test in approval mode. 
 
@@ -265,7 +273,7 @@ class GildedRoseTest extends TestCase
 ```
 
 
-This function has to accept the parameters that we need to build the Item object: the Item type, the SellIn days and the Quality.
+This function has to accept the parameters that we need to build the `Item` object: its type, its Sell In days and its initial Quality.
 
 So, let's extract them to parameters:
 
@@ -334,7 +342,7 @@ class GildedRoseTest extends TestCase
 }
 ```
 
-We should be ready.
+With this preparation we should be ready to run the test for first time.
 
 ## Running the test for the first time
 
@@ -354,7 +362,7 @@ We run the test and a snapshot file will be generated at: `__snapshots/GildedRos
 ]
 ```
 
-As we can see, for a general Item sellIn decreased one unit and quality remains 0, because there is a rule:
+As we can see, for a general `Item`, sellIn decreased one unit and quality remains zero, because there is a rule that states:
 
 ```
 * The Quality of an item is never negative
@@ -383,13 +391,13 @@ You can have several sources of interesting values.
 * "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches; Quality increases by 2 when there are 10 days or less and by 3 when there are 5 days or less but Quality drops to 0 after the concert
 ```
 
-The first rule tells us that `sellIn==0` is important. 
-`quality==0` is also a significant value, because is a limit. The same goes for `quality==50`.
-"Aged Brie" is a type of Item that has a special rule.
-"Sulfuras" is very special type of Item (and it has a different name in code)
-"Backstage passed" is also special. And it defines some values of interest for `sellIn`: `10` and `5`.
+* The first rule tells us that `sellIn==0` is important. 
+* `quality==0` is also a significant value, because is a limit. The same goes for `quality==50`.
+* "Aged Brie" is a type of Item that has a special rule.
+* "Sulfuras" is very special type of Item (and it has a different name in code)
+* "Backstage passed" is also special. And it defines some values of interest for `sellIn`: `10` and `5`.
 
-So, we could start by adding this values to the test:
+So, we could start by adding these values to the test:
 
 ```php
 class GildedRoseTest extends TestCase
@@ -413,7 +421,7 @@ class GildedRoseTest extends TestCase
 }
 ```
 
-Ok. Let's run the test. Remember: the test is in approval mode, so it will fail. This is the result in the snapshot:
+Ok. Let's run the test. Remember: the test is in _approval mode_, so **it will fail**. This is the result in the snapshot:
 
 ```
 [
@@ -636,13 +644,13 @@ Ok. Let's run the test. Remember: the test is in approval mode, so it will fail.
 ]
 ```
 
-We've just ran 24 tests. Without too much effort. The best part is that we now have 100% line and branch coverage. Not bad. This should guarantee that we have enough tests to start refactoring. But, I think we need some more tests.
+We've just ran 24 tests without too much effort. The best part is that we now have 100% line and branch coverage. Not bad. This should guarantee that we have enough tests to start refactoring. But, I think we will need some more.
 
-At this point we would need to study _path coverage_, but in its current state, Golden is not able to execute every scenario as an individual test in PHP, so the path coverage report will not be useful for our purposes. We know that we execute all the branches of the flow, but we can't ensure that we explore all possible paths. But we can do something about it by reading the code.
+At this point we would need to study _path coverage_, but in its current state, Golden is not able to execute every scenario as an individual test in PHP, so the path coverage report will not be useful for our purposes because it will show inaccurate data. We know that we execute all the branches of the flow, but we can't be sure that we explore all possible paths. But we can do something about it by reading the code.
 
 ### Digging into code
 
-Maybe we don't have enough tests. So, let's examine the code for new values to add. 
+As we don't have enough tests we are going to screen the code for new values to add. 
 
 Line 21:
 
@@ -654,7 +662,7 @@ if ($item->quality > 0) {
 }
 ```
 
-We have already values greater than zero, but in boundary analysis we should be examining values immediately around the boundary. `1` in this case. We know that negative values are not allowed for Quality. 
+We have already values greater than zero, but in boundary analysis we should be examining values immediately around a known boundary. `1` in this case, because it follows zero. We know that negative values are not allowed for Quality, so we won't use `-1`. 
 
 Line 27:
 
@@ -686,7 +694,7 @@ class GildedRoseTest extends TestCase
 }
 ```
 
-Now we have 60 tests running. But `sellIn` has also boundary values. They are easy to spot in the code. Let's see:
+Now we have 60 tests running. `sellIn` has also boundary values to consider, and they are easy to spot in the code. Let's see:
 
 ```php
 class GildedRoseTest extends TestCase
