@@ -51,50 +51,35 @@ This is useful for:
 * Understand and put legacy code under test.
 * Obtain high code coverage when starting to refactor legacy code or code that has no tests.
 
-**Current Status**: v0.0.x Not completed port yet, but it has support for Verify, Approval and Master modes
+**Current Status**: v0.2.x Mostly stable.
 
 **Roadmap/Pending features**:
 
-For official first release as a package:
+These features are in place:
 
+* Verify ✅
+* Approval Mode ✅
 * Golden Master ✅
-* `snapshot()` option for naming a test ✅
+* `snapshot()`, `folder()`, and `extension()` options for naming a test ✅
 * Scrubbers support ✅
+* Default options that apply to all tests. ✅
+* Scrubbers for JSON content, using paths. ✅
 * In general, synchronize with the current features of the original Golden ✅
 
 For future releases:
 
 * Ability and API to use custom reporters.
 * Ability and API to use custom normalizers.
-* Global options that apply to all tests.
-* Scrubbers for JSON content, using paths.
 
-**Usage advice**: Experimental until a proper composer package is published.
+**Usage advice**: Usable, stable API. May have some behavior issues.
 
 ### Installation
 
-Composer package installation via repository. Not yet published as package. 
-
-Add this key in your **composer.json** file.
-
-```json
-"repositories": [
-    {
-    "type": "vcs",
-    "url": "https://github.com/franiglesias/php-golden.git"
-    }
-],
-```
-
-Now, you can require the package using the standard compose require.
+You can use standard compose require:
 
 ```
-composer require --dev franiglesias/golden "dev-main"
+composer require --dev franiglesias/golden
 ```
-
-You can always update the library to get the last available version.
-
-Take into account that we will publish as a package when all basic features are completed.
 
 ### Basic Usage: Verify against an auto-generated snapshot
 
